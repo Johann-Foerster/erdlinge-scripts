@@ -1,9 +1,16 @@
+from enum import unique
 from tika import parser
 from dataclasses import dataclass, field
-import glob, csv, sys
+from collections import OrderedDict
+import glob
 
-pdfs = glob.glob("abrechnungen/2024/*.pdf")
+YEAR = "2024"
+pdfs = glob.glob(f"abrechnungen/{YEAR}/*.pdf")
 data = []
+
+AMZ = "Arbeitsmarktzulage"
+MZ  = "Münchenzulage"
+FKZ = "Fahrten zw."
 
 def get_pages(filename):
     raw_xml = parser.from_file(filename, xmlContent=True)
@@ -20,20 +27,30 @@ def get_pages(filename):
 def parse_float(float_str_eu: str):
     return float(float_str_eu.replace(".", "").replace(",","."))
 
+def unique(lst: list):
+    seen = set()
+    seen_add = seen.add
+    return [x for x in lst if not (x in seen or seen_add(x))]
+
 @dataclass
 class Page:
     month_year: str = field()
+    month: int = field()
     name: str = field()
     arbeitsmarktzulage: float = field()
     muenchenzulage: float = field()
+    fahrtkostenzuschuss: float = field()
+    steuerfrei_inkl_fahrtkostenzuschuss: float = field()
     is_rueckrechnung: bool = field()
 
     def __init__(self, page: str):
         # Initialize fields with default values
+        self._page = page
         self._lines = page.split('\n')
 
 
         self.month_year = self.line_with("Gehaltsabrechnung").split(" ")[-1]
+        self.month = int(self.month_year.split(".")[0])
 
         self.name = self.line_with(" Abteilung").split(" Abteilung")[0]
 
@@ -41,14 +58,17 @@ class Page:
 
         index_start = self.line_index_with("Kosten- Kosten- Lohn") 
         index_end = self.line_index_with("GESAMTBRUTTO")
-        lines_loehne = self._lines[index_start+3: index_end-1]
+        lines_loehne = [line for line in self._lines[index_start+2: index_end] if line.strip() != ""]
 
-        self.arbeitsmarktzulage = parse_float(self.line_with("Arbeitsmarktzulage").split(" ")[2]) if "Arbeitsmarktzulage" in "".join(lines_loehne) else 0
-        self.muenchenzulage = parse_float(self.line_with("Münchenzulage").split(" ")[2]) if "Münchenzulage" in "".join(lines_loehne) else 0
+        self.arbeitsmarktzulage = parse_float(self.line_with(AMZ).split(" ")[2]) if AMZ in "".join(lines_loehne) else 0
+        
+        self.muenchenzulage = parse_float(self.line_with(MZ).split(" ")[2]) if MZ in "".join(lines_loehne) else 0
+        
+        self.fahrtkostenzuschuss = parse_float(self.line_with(FKZ).split(" ")[7]) if FKZ in page else 0
 
-        print("---")
-        print("\n".join(lines_loehne))
-        print("---")
+        steuerfrei_lines = [line for line in lines_loehne if not line.endswith("* *")]
+        steuerfrei_values = [parse_float(line.split(" *")[0].split(" ")[-1]) for line in steuerfrei_lines]
+        self.steuerfrei_inkl_fahrtkostenzuschuss = self.fahrtkostenzuschuss + sum(steuerfrei_values)
 
     def line_with(self, text: str):
         return [line for line in self._lines if text in line][0]
@@ -62,5 +82,13 @@ for pdf in pdfs:
     text_pages = get_pages(pdf)
     for page in text_pages:
         page_obj = Page(page)
-        print(page_obj)
+        if not (YEAR in page_obj.month_year):
+            print(f"Skipping page not for year {YEAR} (Rückrechung={page_obj.is_rueckrechnung}): {page_obj}")
+            continue
         pages.append(page_obj)
+
+months = unique([page.month for page in pages])
+names = unique([page.name for page in pages])
+
+print(f"Creating table for months {months} and employees {names}")
+
