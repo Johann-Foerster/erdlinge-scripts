@@ -5,7 +5,7 @@ from collections import OrderedDict
 from pandas import DataFrame, ExcelWriter
 import glob, os
 
-YEAR = "2023"
+YEAR = "2024"
 pdfs = glob.glob(f"abrechnungen/{YEAR}/*.pdf")
 data = []
 
@@ -130,8 +130,8 @@ pages = []
 for pdf in pdfs:
     print(f"Reading {pdf}...")
     text_pages = get_pages(pdf)
-    for page in text_pages:
-        page_obj = Page(page)
+    for tpage in text_pages:
+        page_obj = Page(tpage)
         if YEAR not in page_obj.month_year:
             print(
                 f"Skipping page not for year {YEAR} (RR={page_obj.is_rueckrechnung}): {page_obj}"
