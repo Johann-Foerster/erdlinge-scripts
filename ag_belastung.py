@@ -3,7 +3,8 @@ from tika import parser
 from pandas import DataFrame, ExcelWriter
 import glob, re, os
 
-YEAR = "2024"
+YEAR = "2023"
+MON = "DEZ"
 pdfs = glob.glob(f"ag_belastung/{YEAR}/*.pdf")
 data = []
 
@@ -81,7 +82,7 @@ def process_entry(
     nextLineSplit: list,
     monat_header: str,
     gesamt_header: str,
-    plus: boolean,
+    plus: bool,
 ):
     sign = 1.0 if plus else -1.0
     gesamt = 0.0
@@ -168,7 +169,7 @@ for idx, line in enumerate(lines):
     raise OSError("Unable to process unknown line")
 print("Finished reading")
 
-OUT_FILENAME = f"ag_belastung_{YEAR}_OKT.xlsx"
+OUT_FILENAME = f"ag_belastung_{YEAR}_{MON}.xlsx"
 print(f"\nCreating {OUT_FILENAME}")
 if os.path.exists(OUT_FILENAME):
     os.remove(OUT_FILENAME)
