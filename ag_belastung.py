@@ -3,8 +3,8 @@ from tika import parser
 from pandas import DataFrame, ExcelWriter
 import glob, re, os
 
-YEAR = "2023"
-MON = "DEZ"
+YEAR = "2024"
+MON = "NOV"
 pdfs = glob.glob(f"ag_belastung/{YEAR}/*.pdf")
 data = []
 
@@ -157,9 +157,9 @@ for idx, line in enumerate(lines):
         )
         continue
     if (
-        line.startswith("Erst. Entg. B.Verbot")
-        or line.startswith("Erst. SV-AG B.Verbot")
-        or line.startswith("Erst. Mutterschutz")
+        line.startswith("Erst. Entg. B.Verbot") or line.startswith("aus RR: Erst. Entg. B.Verbot")
+        or line.startswith("Erst. SV-AG B.Verbot") or line.startswith("aus RR: Erst. SV-AG B.Verbot")
+        or line.startswith("Erst. Mutterschutz") or line.startswith("aus RR: Erst. Mutterschutz")
     ):
         RR_line_processed = process_entry(
             data, nextLineRR, lineSplit, nextLineSplit, U2_MONAT, U2_GESAMT, False
