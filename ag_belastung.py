@@ -4,8 +4,8 @@ from pandas import DataFrame, ExcelWriter
 import glob, re, os
 
 YEAR = "2024"
-MON = "NOV"
-pdfs = glob.glob(f"ag_belastung/{YEAR}/*.pdf")
+MON = "DEZ"
+pdfs = glob.glob(f"ag_belastung/{YEAR}/Jan-Dez.pdf")
 data = []
 
 HEADER_END = "Pers.Nr. Einheiten"
@@ -144,8 +144,11 @@ for idx, line in enumerate(lines):
         continue
     if (
         line.startswith("SV-AG Anteil (Pflicht)")
+        or line.startswith("SV-AG Anteil (Pauschal)") 
         or line.startswith("Umlage 1/2")
         or line.startswith("Insolvenzgeldumlage")
+        or line.startswith("aus RR: Umlage 1/2")
+        or line.startswith("geringf. p. Steuer")
     ):
         RR_line_processed = process_entry(
             data, nextLineRR, lineSplit, nextLineSplit, SV_AG_MONAT, SV_AG_GESAMT, True
