@@ -3,6 +3,7 @@ from tika import parser
 from dataclasses import dataclass, field
 from collections import OrderedDict
 from pandas import DataFrame, ExcelWriter
+import numpy as np
 import glob, os, re
 
 YEAR = "2024"
@@ -17,6 +18,7 @@ MUT = "Mutterschaftsgeld"
 MUTF = "Mutterschutzfrist"
 BV = "Beschäftigungsverbot"
 WAZ = "Arb.Zeit"
+TVOD = "TVöD"
 
 
 def get_pages(filename):
@@ -60,6 +62,7 @@ class Page:
     steuerfrei_inkl_fahrtkostenzuschuss: float = field()
     is_rueckrechnung: bool = field()
     wochenarbeitszeit: float = field()
+    gruppe_stufe: str = field()
 
     def __init__(self, page: str):
         # Initialize fields with default values
@@ -91,6 +94,10 @@ class Page:
             parse_float(self.line_with(MZ).split(" ")[2])
             if MZ in "".join(lines_loehne)
             else 0
+        )
+
+        self.gruppe_stufe = (
+            self.gruppe_stufe(self.line_with(TVOD)) if TVOD in page else "-"
         )
 
         self.fahrtkostenzuschuss = (
@@ -134,6 +141,12 @@ class Page:
     def line_index_with(self, text: str):
         return [index for index, line in enumerate(self._lines) if text in line][0]
 
+    def gruppe_stufe(self, line: str):
+        parts = line.split("Grundvergütung")[2].strip().split(" ")
+        return (
+            f"S{parts[1]}/{parts[3]}" if parts[0] == "S" else f"{parts[0]}/{parts[2]}"
+        )
+
 
 pages = []
 for pdf in pdfs:
@@ -160,6 +173,7 @@ tables = [
         "field": "steuerfrei_inkl_fahrtkostenzuschuss",
     },
     {"name": "Wochenarbeitszeit", "field": "wochenarbeitszeit"},
+    {"name": "Gehaltsgruppe-Stufe", "field": "gruppe_stufe"},
 ]
 print(
     f"\nCreating tables {[table['name'] for table in tables]} for months {months} and employees {names}"
@@ -198,7 +212,8 @@ with ExcelWriter(OUT_FILENAME, engine="openpyxl", mode="w") as writer:
                     if employee in data[month]
                     else 0
                 )
-        df["Summe"] = df.sum(axis=1)
+        if np.issubdtype(df.dtypes.values[0], np.number):
+            df["Summe"] = df.sum(axis=1)
         title_df = DataFrame([{"Daten": table["name"]}])
         title_df.to_excel(
             writer, sheet_name=table["name"], index=False, header=False, startrow=0
