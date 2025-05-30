@@ -3,7 +3,7 @@ from tika import parser
 from dataclasses import dataclass, field
 from collections import OrderedDict
 from pandas import DataFrame, ExcelWriter
-import glob, os
+import glob, os, re
 
 YEAR = "2024"
 pdfs = glob.glob(f"abrechnungen/{YEAR}/*.pdf")
@@ -16,6 +16,7 @@ EUW = "Entgeltumw.Altersv.lfd"
 MUT = "Mutterschaftsgeld"
 MUTF = "Mutterschutzfrist"
 BV = "Beschäftigungsverbot"
+WAZ = "Arb.Zeit"
 
 
 def get_pages(filename):
@@ -58,6 +59,7 @@ class Page:
     fahrtkostenzuschuss: float = field()
     steuerfrei_inkl_fahrtkostenzuschuss: float = field()
     is_rueckrechnung: bool = field()
+    wochenarbeitszeit: float = field()
 
     def __init__(self, page: str):
         # Initialize fields with default values
@@ -94,6 +96,13 @@ class Page:
         self.fahrtkostenzuschuss = (
             parse_float(self.line_with(FKZ).split(" ")[7]) if FKZ in page else 0
         )
+
+        WAZ_HEAD_IDX = self._lines.index(self.line_with(WAZ))
+        WAZ_LINE = self._lines[WAZ_HEAD_IDX + 3]
+        WAZ_MATCH = re.search(
+            r"(\d+,\d+)(?= \d+,\d+)", " ".join(WAZ_LINE.split(" ")[1:])
+        )
+        self.wochenarbeitszeit = parse_float(WAZ_MATCH.group(0)) if WAZ_MATCH else -1
 
         steuerfrei_lines = [line for line in lines_loehne if not line.endswith("* *")]
         steuerfrei_values = [
@@ -150,6 +159,7 @@ tables = [
         "name": "Steuerfrei (inkl. FKZ)",
         "field": "steuerfrei_inkl_fahrtkostenzuschuss",
     },
+    {"name": "Wochenarbeitszeit", "field": "wochenarbeitszeit"},
 ]
 print(
     f"\nCreating tables {[table['name'] for table in tables]} for months {months} and employees {names}"
