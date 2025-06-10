@@ -2,6 +2,7 @@ from tika import parser
 import glob, csv
 
 YEAR = "2024"
+ROW_SUM = "Summe"
 pdfs = glob.glob(f"aag_erstattungen/{YEAR}/*.pdf")
 data = []
 
@@ -87,16 +88,22 @@ for pdf in pdfs:
 
         if "X Stornierung" in page:
             value_eur = -value_eur
+        title = pdf.split("/")[-1].replace(".pdf", "")
+
         if type == "U1":
-            erstattungen_u1[name] = (
-                erstattungen_u1[name] + value_eur
-                if name in erstattungen_u1
+            if name not in erstattungen_u1:
+                erstattungen_u1[name] = {}
+            erstattungen_u1[name][title] = (
+                erstattungen_u1[name][title] + value_eur
+                if title in erstattungen_u1[name]
                 else value_eur
             )
         else:
-            erstattungen_u2[name] = (
-                erstattungen_u2[name] + value_eur
-                if name in erstattungen_u2
+            if name not in erstattungen_u2:
+                erstattungen_u2[name] = {}
+            erstattungen_u2[name][title] = (
+                erstattungen_u2[name][title] + value_eur
+                if title in erstattungen_u2[name]
                 else value_eur
             )
 
@@ -106,18 +113,51 @@ def format_float(number):
     return f"{integer_part},{decimal_part}"
 
 
+# summing up
+for name in erstattungen_u1.keys():
+    erstattungen_u1[name][ROW_SUM] = sum(erstattungen_u1[name].values())
+for name in erstattungen_u2.keys():
+    erstattungen_u2[name][ROW_SUM] = sum(erstattungen_u2[name].values())
+
+
 outfile = f"AAG_Erstattungen_{YEAR}.csv"
+titles = [x.split("/")[-1].replace(".pdf", "") for x in pdfs]
 print(f"\nWriting {outfile}")
-with open(outfile, "w", encoding="utf-8", newline="") as file:
+
+with open(outfile, "w", encoding="utf-8-sig", newline="") as file:
     writer = csv.writer(file, delimiter=";")
 
     writer.writerow(["U1"])
+    writer.writerow(["Name"] + titles + [ROW_SUM])
     for name in erstattungen_u1.keys():
-        writer.writerow([name] + [format_float(erstattungen_u1[name])])
+        writer.writerow(
+            [name]
+            + [
+                (
+                    format_float(erstattungen_u1[name][x])
+                    if x in erstattungen_u1[name]
+                    else "0"
+                )
+                for x in titles
+            ]
+            + [format_float(erstattungen_u1[name][ROW_SUM])]
+        )
 
     writer.writerow([])
     writer.writerow(["U2"])
+    writer.writerow(["Name"] + titles + [ROW_SUM])
     for name in erstattungen_u2.keys():
-        writer.writerow([name] + [format_float(erstattungen_u2[name])])
+        writer.writerow(
+            [name]
+            + [
+                (
+                    format_float(erstattungen_u2[name][x])
+                    if x in erstattungen_u2[name]
+                    else "0"
+                )
+                for x in titles
+            ]
+            + [format_float(erstattungen_u2[name][ROW_SUM])]
+        )
 
 print("...written!")
