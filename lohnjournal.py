@@ -82,10 +82,22 @@ while i < len(lines):
     line_split = re.split(r"(\b\d{1,3}(?:\.\d{3})*,\d+\b)", lines[i], maxsplit=1)
     name = line_split[0].strip().strip(" *)")
     if not re.match(r"^\d{6}", lines[i + 1]) and not "Summen" in lines[i + 1]:
+        print(f"FEHLER: nicht erwartetes format für {name}")
         data[name] = {STEUERBRUTTO: "?", GESAMTBRUTTO: "?", SV_AG: "?"}
         i += 2
         continue
     sv_ag = line_split[1] if len(line_split) > 1 else "0"
+    if name in data:
+        print(
+            f"WARNUNG: Zwei Lohnjournal Seiten für {name} - addiere Werte - Kontrolle!"
+        )
+        steuerbrutto = (
+            f"{(parse_float(data[name][STEUERBRUTTO]) + parse_float(steuerbrutto)):.2f}"
+        )
+        gesamtbrutto = (
+            f"{(parse_float(data[name][GESAMTBRUTTO]) + parse_float(gesamtbrutto)):.2f}"
+        )
+        sv_ag = f"{(parse_float(data[name][SV_AG]) + parse_float(sv_ag)):.2f}"
     data[name] = {
         STEUERBRUTTO: steuerbrutto,
         GESAMTBRUTTO: gesamtbrutto,
