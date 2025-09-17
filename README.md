@@ -1,99 +1,99 @@
-# Erdlinge Scripts - PDF Processing Tool
+# Erdlinge Scripts - PDF-Verarbeitungstool
 
-This repository contains scripts to process various types of PDF documents related to payroll and reimbursements.
+Dieses Repository enthält Skripte zur Verarbeitung verschiedener Arten von PDF-Dokumenten im Zusammenhang mit Lohnabrechnung und Erstattungen.
 
-## Features
+## Funktionen
 
-- **AAG Erstattungen**: Process AAG reimbursement PDFs and generate CSV reports with U1/U2 data
-- **Abrechnungen**: Process payroll PDFs and generate Excel reports with allowances, working hours, and salary groups  
-- **AG Belastung**: Process employer burden PDFs and generate Excel reports with cost breakdowns
-- **Lohnjournal**: Process payroll journal PDFs and generate Excel reports with gross salary data
+- **AAG Erstattungen**: Verarbeitung von AAG-Erstattungs-PDFs und Generierung von CSV-Berichten mit U1/U2-Daten
+- **Abrechnungen**: Verarbeitung von Lohnabrechnung-PDFs und Generierung von Excel-Berichten mit Zulagen, Arbeitszeiten und Gehaltsgruppen
+- **AG Belastung**: Verarbeitung von Arbeitgeberbelastung-PDFs und Generierung von Excel-Berichten mit Kostenaufschlüsselungen
+- **Lohnjournal**: Verarbeitung von Lohnjournal-PDFs und Generierung von Excel-Berichten mit Bruttolohndaten
 
 ## Installation
 
-1. Install the required dependencies:
+1. Installieren Sie die erforderlichen Abhängigkeiten:
 ```bash
 pip install -r requirements.txt
 ```
 
-## Usage
+## Verwendung
 
-### Command Line Interface (CLI)
+### Kommandozeilen-Interface (CLI)
 
-The original CLI scripts are preserved and can be used as before:
+Die ursprünglichen CLI-Skripte bleiben erhalten und können wie zuvor verwendet werden:
 
 ```bash
-# Process AAG Erstattungen
+# AAG Erstattungen verarbeiten
 python aag_erstattungen.py
 
-# Process Abrechnungen  
+# Abrechnungen verarbeiten
 python abrechnungen.py
 
-# Process AG Belastung
+# AG Belastung verarbeiten
 python ag_belastung.py
 
-# Process Lohnjournal
+# Lohnjournal verarbeiten
 python lohnjournal.py
 ```
 
-Each script expects PDF files to be placed in specific directory structures:
+Jedes Skript erwartet PDF-Dateien in spezifischen Verzeichnisstrukturen:
 - `aag_erstattungen/2024/*.pdf`
 - `abrechnungen/2024/*.pdf`
 - `ag_belastung/2024/Jan-Dez.pdf`
 - `lohnjournal/12.2024.pdf`
 
-### Web Interface (Gradio App)
+### Web-Interface (Gradio App)
 
-For a more user-friendly experience, use the Gradio web interface:
+Für eine benutzerfreundlichere Erfahrung verwenden Sie das Gradio-Web-Interface:
 
 ```bash
 python gradio_app.py
 ```
 
-This will start a web server at `http://localhost:7860` with tabs for each document type. You can:
+Dies startet einen Webserver unter `http://localhost:7860` mit Registerkarten für jeden Dokumenttyp. Sie können:
 
-1. Upload PDF files through the web interface
-2. Specify the year for processing  
-3. Click the process button
-4. Download the generated CSV/Excel results
+1. PDF-Dateien über das Web-Interface hochladen
+2. Das Jahr für die Verarbeitung angeben
+3. Auf den Verarbeitungsbutton klicken
+4. Die generierten CSV/Excel-Ergebnisse herunterladen
 
-#### Features of the Web Interface:
+#### Funktionen des Web-Interfaces:
 
-- **Tabbed Interface**: Separate tabs for each document type
-- **File Upload**: Drag-and-drop or click to upload PDF files
-- **Real-time Processing**: See processing status and download results immediately
-- **Multiple File Support**: Upload multiple files where supported (AAG, Abrechnungen)
-- **Single File Support**: Upload single file where required (AG Belastung, Lohnjournal)
+- **Registerkarten-Interface**: Separate Registerkarten für jeden Dokumenttyp
+- **Datei-Upload**: Drag-and-Drop oder Klick zum Hochladen von PDF-Dateien
+- **Echtzeitverarbeitung**: Verarbeitungsstatus anzeigen und Ergebnisse sofort herunterladen
+- **Mehrere Dateien unterstützt**: Mehrere Dateien hochladen wo unterstützt (AAG, Abrechnungen)
+- **Einzeldatei unterstützt**: Einzeldatei hochladen wo erforderlich (AG Belastung, Lohnjournal)
 
-## File Formats
+## Dateiformate
 
-### Input
-- PDF files containing the respective document types
+### Eingabe
+- PDF-Dateien mit den entsprechenden Dokumenttypen
 
-### Output
-- **AAG Erstattungen**: CSV file with semicolon-separated values
-- **Abrechnungen**: Excel file with multiple sheets for different data categories
-- **AG Belastung**: Excel file with employer cost breakdown
-- **Lohnjournal**: Excel file with payroll summary data
+### Ausgabe
+- **AAG Erstattungen**: CSV-Datei mit Semikolon-getrennten Werten
+- **Abrechnungen**: Excel-Datei mit mehreren Arbeitsblättern für verschiedene Datenkategorien
+- **AG Belastung**: Excel-Datei mit Arbeitgeberkostenaufschlüsselung
+- **Lohnjournal**: Excel-Datei mit Lohnzusammenfassungsdaten
 
-## Dependencies
+## Abhängigkeiten
 
-- `gradio` - Web interface framework
-- `tika` - PDF text extraction  
-- `pandas` - Data manipulation and Excel export
-- `openpyxl` - Excel file handling
-- `numpy` - Numerical computations
+- `gradio` - Web-Interface-Framework
+- `tika` - PDF-Textextraktion
+- `pandas` - Datenmanipulation und Excel-Export
+- `openpyxl` - Excel-Dateibehandlung
+- `numpy` - Numerische Berechnungen
 
-## Architecture
+## Architektur
 
-The code is structured to maximize reusability:
+Der Code ist strukturiert, um die Wiederverwendbarkeit zu maximieren:
 
-- `core_logic.py` - Contains the core processing functions extracted from the original CLI scripts
-- `gradio_app.py` - Web interface implementation using the core logic
-- `aag_erstattungen.py`, `abrechnungen.py`, `ag_belastung.py`, `lohnjournal.py` - CLI scripts that use the core logic
+- `core_logic.py` - Enthält die Kernverarbeitungsfunktionen, die aus den ursprünglichen CLI-Skripten extrahiert wurden
+- `gradio_app.py` - Web-Interface-Implementierung unter Verwendung der Kernlogik
+- `aag_erstattungen.py`, `abrechnungen.py`, `ag_belastung.py`, `lohnjournal.py` - CLI-Skripte, die die Kernlogik verwenden
 
-This design ensures that:
-1. The original CLI functionality is preserved
-2. Code is not duplicated
-3. Bug fixes and improvements benefit both CLI and web interfaces
-4. The core logic can be easily tested and maintained
+Dieses Design stellt sicher, dass:
+1. Die ursprüngliche CLI-Funktionalität erhalten bleibt
+2. Code nicht dupliziert wird
+3. Fehlerbehebungen und Verbesserungen sowohl CLI- als auch Web-Interfaces zugutekommen
+4. Die Kernlogik einfach getestet und gewartet werden kann

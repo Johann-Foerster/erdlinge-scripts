@@ -1,6 +1,6 @@
 """
-Gradio Web Application for Erdlinge Scripts
-Provides a web interface for the PDF processing scripts
+Gradio Web-Anwendung für Erdlinge Scripts
+Bietet eine Web-Oberfläche für die PDF-Verarbeitungsskripte
 """
 
 import gradio as gr
@@ -15,9 +15,9 @@ from core_logic import (
 
 
 def process_aag_files(files, year="2024"):
-    """Process AAG Erstattungen files"""
+    """AAG Erstattungen Dateien verarbeiten"""
     if not files:
-        return "No files uploaded", None
+        return "Keine Dateien hochgeladen", None
     
     try:
         # Get file paths from uploaded files
@@ -31,16 +31,16 @@ def process_aag_files(files, year="2024"):
         temp_file.write(csv_content)
         temp_file.close()
         
-        return f"Successfully processed {len(files)} files. CSV generated.", temp_file.name
+        return f"Erfolgreich {len(files)} Dateien verarbeitet. CSV erstellt.", temp_file.name
         
     except Exception as e:
-        return f"Error processing files: {str(e)}", None
+        return f"Fehler beim Verarbeiten der Dateien: {str(e)}", None
 
 
 def process_abrechnungen_files(files, year="2024"):
-    """Process Abrechnungen files"""
+    """Abrechnungen Dateien verarbeiten"""
     if not files:
-        return "No files uploaded", None
+        return "Keine Dateien hochgeladen", None
     
     try:
         # Get file paths from uploaded files
@@ -49,16 +49,16 @@ def process_abrechnungen_files(files, year="2024"):
         # Process files
         excel_path = process_abrechnungen(file_paths, year)
         
-        return f"Successfully processed {len(files)} files. Excel generated.", excel_path
+        return f"Erfolgreich {len(files)} Dateien verarbeitet. Excel erstellt.", excel_path
         
     except Exception as e:
-        return f"Error processing files: {str(e)}", None
+        return f"Fehler beim Verarbeiten der Dateien: {str(e)}", None
 
 
 def process_ag_belastung_files(files, year="2024"):
-    """Process AG Belastung files"""
+    """AG Belastung Dateien verarbeiten"""
     if not files:
-        return "No files uploaded", None
+        return "Keine Dateien hochgeladen", None
     
     try:
         # Get file paths from uploaded files  
@@ -67,16 +67,16 @@ def process_ag_belastung_files(files, year="2024"):
         # Process files
         excel_path = process_ag_belastung(file_paths, year)
         
-        return f"Successfully processed {len(files)} files. Excel generated.", excel_path
+        return f"Erfolgreich {len(files)} Dateien verarbeitet. Excel erstellt.", excel_path
         
     except Exception as e:
-        return f"Error processing files: {str(e)}", None
+        return f"Fehler beim Verarbeiten der Dateien: {str(e)}", None
 
 
 def process_lohnjournal_files(files, year="2024"):
-    """Process Lohnjournal files"""
+    """Lohnjournal Dateien verarbeiten"""
     if not files:
-        return "No files uploaded", None
+        return "Keine Dateien hochgeladen", None
     
     try:
         # Get file paths from uploaded files
@@ -85,45 +85,45 @@ def process_lohnjournal_files(files, year="2024"):
         # Process files
         excel_path = process_lohnjournal(file_paths, year)
         
-        return f"Successfully processed {len(files)} files. Excel generated.", excel_path
+        return f"Erfolgreich {len(files)} Dateien verarbeitet. Excel erstellt.", excel_path
         
     except Exception as e:
-        return f"Error processing files: {str(e)}", None
+        return f"Fehler beim Verarbeiten der Dateien: {str(e)}", None
 
 
 # Create Gradio interface
-with gr.Blocks(title="Erdlinge Scripts - PDF Processing", theme=gr.themes.Soft()) as app:
-    gr.Markdown("# Erdlinge Scripts - PDF Processing Tool")
-    gr.Markdown("Upload PDF files and process them to generate Excel/CSV reports.")
+with gr.Blocks(title="Erdlinge Scripts - PDF-Verarbeitung", theme=gr.themes.Soft()) as app:
+    gr.Markdown("# Erdlinge Scripts - PDF-Verarbeitungstool")
+    gr.Markdown("Laden Sie PDF-Dateien hoch und verarbeiten Sie sie, um Excel/CSV-Berichte zu erstellen.")
     
     with gr.Tabs():
         # AAG Erstattungen Tab
         with gr.TabItem("AAG Erstattungen"):
-            gr.Markdown("### AAG Reimbursements Processing")
-            gr.Markdown("Upload AAG reimbursement PDF files to generate a CSV report with U1/U2 data.")
+            gr.Markdown("### AAG Erstattungen Verarbeitung")
+            gr.Markdown("Laden Sie AAG Erstattungs-PDF-Dateien hoch, um einen CSV-Bericht mit U1/U2-Daten zu erstellen.")
             
             with gr.Row():
                 with gr.Column():
                     aag_files = gr.File(
-                        label="Upload AAG PDF Files", 
+                        label="AAG PDF-Dateien hochladen", 
                         file_count="multiple", 
                         file_types=[".pdf"]
                     )
                     aag_year = gr.Textbox(
-                        label="Year", 
+                        label="Jahr", 
                         value="2024", 
-                        placeholder="Enter year (e.g., 2024)"
+                        placeholder="Jahr eingeben (z.B. 2024)"
                     )
-                    aag_submit = gr.Button("Process AAG Files", variant="primary")
+                    aag_submit = gr.Button("AAG Dateien verarbeiten", variant="primary")
                 
                 with gr.Column():
                     aag_output = gr.Textbox(
-                        label="Processing Status", 
+                        label="Verarbeitungsstatus", 
                         lines=3, 
                         interactive=False
                     )
                     aag_download = gr.File(
-                        label="Download Result", 
+                        label="Ergebnis herunterladen", 
                         interactive=False
                     )
             
@@ -135,31 +135,31 @@ with gr.Blocks(title="Erdlinge Scripts - PDF Processing", theme=gr.themes.Soft()
         
         # Abrechnungen Tab
         with gr.TabItem("Abrechnungen"):
-            gr.Markdown("### Payroll Processing")
-            gr.Markdown("Upload payroll PDF files to generate Excel reports with allowances, working hours, and salary groups.")
+            gr.Markdown("### Lohnabrechnung Verarbeitung")
+            gr.Markdown("Laden Sie Lohnabrechnung-PDF-Dateien hoch, um Excel-Berichte mit Zulagen, Arbeitszeiten und Gehaltsgruppen zu erstellen.")
             
             with gr.Row():
                 with gr.Column():
                     abr_files = gr.File(
-                        label="Upload Payroll PDF Files", 
+                        label="Lohnabrechnung PDF-Dateien hochladen", 
                         file_count="multiple", 
                         file_types=[".pdf"]
                     )
                     abr_year = gr.Textbox(
-                        label="Year", 
+                        label="Jahr", 
                         value="2024", 
-                        placeholder="Enter year (e.g., 2024)"
+                        placeholder="Jahr eingeben (z.B. 2024)"
                     )
-                    abr_submit = gr.Button("Process Payroll Files", variant="primary")
+                    abr_submit = gr.Button("Lohnabrechnung Dateien verarbeiten", variant="primary")
                 
                 with gr.Column():
                     abr_output = gr.Textbox(
-                        label="Processing Status", 
+                        label="Verarbeitungsstatus", 
                         lines=3, 
                         interactive=False
                     )
                     abr_download = gr.File(
-                        label="Download Result", 
+                        label="Ergebnis herunterladen", 
                         interactive=False
                     )
             
@@ -171,31 +171,31 @@ with gr.Blocks(title="Erdlinge Scripts - PDF Processing", theme=gr.themes.Soft()
         
         # AG Belastung Tab
         with gr.TabItem("AG Belastung"):
-            gr.Markdown("### Employer Burden Processing")
-            gr.Markdown("Upload employer burden PDF file to generate Excel report with cost breakdowns.")
+            gr.Markdown("### Arbeitgeberbelastung Verarbeitung")
+            gr.Markdown("Laden Sie eine Arbeitgeberbelastung-PDF-Datei hoch, um einen Excel-Bericht mit Kostenaufschlüsselungen zu erstellen.")
             
             with gr.Row():
                 with gr.Column():
                     ag_files = gr.File(
-                        label="Upload AG Belastung PDF File", 
+                        label="AG Belastung PDF-Datei hochladen", 
                         file_count="single", 
                         file_types=[".pdf"]
                     )
                     ag_year = gr.Textbox(
-                        label="Year", 
+                        label="Jahr", 
                         value="2024", 
-                        placeholder="Enter year (e.g., 2024)"
+                        placeholder="Jahr eingeben (z.B. 2024)"
                     )
-                    ag_submit = gr.Button("Process AG Belastung File", variant="primary")
+                    ag_submit = gr.Button("AG Belastung Datei verarbeiten", variant="primary")
                 
                 with gr.Column():
                     ag_output = gr.Textbox(
-                        label="Processing Status", 
+                        label="Verarbeitungsstatus", 
                         lines=3, 
                         interactive=False
                     )
                     ag_download = gr.File(
-                        label="Download Result", 
+                        label="Ergebnis herunterladen", 
                         interactive=False
                     )
             
@@ -207,31 +207,31 @@ with gr.Blocks(title="Erdlinge Scripts - PDF Processing", theme=gr.themes.Soft()
         
         # Lohnjournal Tab
         with gr.TabItem("Lohnjournal"):
-            gr.Markdown("### Payroll Journal Processing")
-            gr.Markdown("Upload payroll journal PDF file to generate Excel report with gross salary data.")
+            gr.Markdown("### Lohnjournal Verarbeitung")
+            gr.Markdown("Laden Sie eine Lohnjournal-PDF-Datei hoch, um einen Excel-Bericht mit Bruttolohndaten zu erstellen.")
             
             with gr.Row():
                 with gr.Column():
                     lj_files = gr.File(
-                        label="Upload Lohnjournal PDF File", 
+                        label="Lohnjournal PDF-Datei hochladen", 
                         file_count="single", 
                         file_types=[".pdf"]
                     )
                     lj_year = gr.Textbox(
-                        label="Year", 
+                        label="Jahr", 
                         value="2024", 
-                        placeholder="Enter year (e.g., 2024)"
+                        placeholder="Jahr eingeben (z.B. 2024)"
                     )
-                    lj_submit = gr.Button("Process Lohnjournal File", variant="primary")
+                    lj_submit = gr.Button("Lohnjournal Datei verarbeiten", variant="primary")
                 
                 with gr.Column():
                     lj_output = gr.Textbox(
-                        label="Processing Status", 
+                        label="Verarbeitungsstatus", 
                         lines=3, 
                         interactive=False
                     )
                     lj_download = gr.File(
-                        label="Download Result", 
+                        label="Ergebnis herunterladen", 
                         interactive=False
                     )
             
