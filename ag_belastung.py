@@ -3,9 +3,9 @@ from tika import parser
 from pandas import DataFrame, ExcelWriter
 import glob, re, os
 
-YEAR = "2024"
-MON = "DEZ"
-pdfs = glob.glob(f"ag_belastung/{YEAR}/Jan-Dez.pdf")
+YEAR = "2025"
+MON = "AUGUST"
+pdfs = glob.glob(f"ag_belastung/{YEAR}/August.pdf")
 data = []
 
 HEADER_END = "Pers.Nr. Einheiten"
@@ -88,7 +88,7 @@ def process_entry(
     gesamt = 0.0
     monat = 0.0
     if nextLineRR:
-        print(f"Processing also '{" ".join(nextLineSplit)}'")
+        print(f"Processing also '{' '.join(nextLineSplit)}'")
         gesamt = sign * parse_float(nextLineSplit[-1])
         monat = sign * (parse_float(nextLineSplit[-2]) + parse_float(lineSplit[-1]))
     else:
@@ -144,10 +144,12 @@ for idx, line in enumerate(lines):
         continue
     if (
         line.startswith("SV-AG Anteil (Pflicht)")
-        or line.startswith("SV-AG Anteil (Pauschal)") 
+        or line.startswith("SV-AG Anteil (Pauschal)")
         or line.startswith("Umlage 1/2")
         or line.startswith("Insolvenzgeldumlage")
         or line.startswith("aus RR: Umlage 1/2")
+        or line.startswith("aus RR: SV-AG Anteil (Pflicht)")
+        or line.startswith("aus RR: Insolvenzgeldumlage")
         or line.startswith("geringf. p. Steuer")
     ):
         RR_line_processed = process_entry(
@@ -160,16 +162,19 @@ for idx, line in enumerate(lines):
         )
         continue
     if (
-        line.startswith("Erst. Entg. B.Verbot") or line.startswith("aus RR: Erst. Entg. B.Verbot")
-        or line.startswith("Erst. SV-AG B.Verbot") or line.startswith("aus RR: Erst. SV-AG B.Verbot")
-        or line.startswith("Erst. Mutterschutz") or line.startswith("aus RR: Erst. Mutterschutz")
+        line.startswith("Erst. Entg. B.Verbot")
+        or line.startswith("aus RR: Erst. Entg. B.Verbot")
+        or line.startswith("Erst. SV-AG B.Verbot")
+        or line.startswith("aus RR: Erst. SV-AG B.Verbot")
+        or line.startswith("Erst. Mutterschutz")
+        or line.startswith("aus RR: Erst. Mutterschutz")
     ):
         RR_line_processed = process_entry(
             data, nextLineRR, lineSplit, nextLineSplit, U2_MONAT, U2_GESAMT, False
         )
         continue
 
-    raise OSError("Unable to process unknown line")
+    raise OSError(f"Unable to process unknown line {line}")
 print("Finished reading")
 
 OUT_FILENAME = f"ag_belastung_{YEAR}_{MON}.xlsx"
@@ -180,7 +185,16 @@ if os.path.exists(OUT_FILENAME):
 TITLE = "AG Belastung"
 with ExcelWriter(OUT_FILENAME, engine="openpyxl", mode="w") as writer:
     df = DataFrame.from_dict(data, orient="columns").T
-    order = [MONATSBRUTTO, SV_AG_MONAT, U1_MONAT, U2_MONAT, GESAMTBRUTTO, SV_AG_GESAMT, U1_GESAMT, U2_GESAMT]
+    order = [
+        MONATSBRUTTO,
+        SV_AG_MONAT,
+        U1_MONAT,
+        U2_MONAT,
+        GESAMTBRUTTO,
+        SV_AG_GESAMT,
+        U1_GESAMT,
+        U2_GESAMT,
+    ]
     df = df[order]
     title_df = DataFrame([{"title": TITLE}])
     title_df.to_excel(writer, sheet_name=TITLE, index=False, header=False, startrow=0)
