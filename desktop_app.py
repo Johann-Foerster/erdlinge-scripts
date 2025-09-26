@@ -351,6 +351,34 @@ def start_gradio_server(app, port):
     app.launch(**launch_params)
 
 
+def start_browser_fallback(port):
+    """Fallback auf Browser-Version wenn PyWebView nicht verfügbar ist."""
+    try:
+        import webbrowser
+        webbrowser.open(f"http://localhost:{port}")
+        print(f"✓ Browser geöffnet unter: http://localhost:{port}")
+        print("\nDie Anwendung läuft im Browser-Modus.")
+        print("Drücken Sie Strg+C um das Programm zu beenden.")
+        
+        # Keep the server running
+        try:
+            while True:
+                time.sleep(1)
+        except KeyboardInterrupt:
+            print("\nProgramm beendet.")
+            
+    except Exception as browser_error:
+        print(f"Fehler beim Öffnen des Browsers: {browser_error}")
+        print(f"Manuell öffnen: http://localhost:{port}")
+        print("Drücken Sie Strg+C um das Programm zu beenden.")
+        
+        try:
+            while True:
+                time.sleep(1)
+        except KeyboardInterrupt:
+            print("\nProgramm beendet.")
+
+
 def main():
     """Main function for native desktop application"""
     print("Starte Erdlinge Scripts PDF-Verarbeitungstool...")
