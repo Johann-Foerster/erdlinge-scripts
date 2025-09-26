@@ -2,7 +2,53 @@
 
 This guide explains how to create and use standalone executable applications for the Erdlinge Scripts PDF processing tool, including the new native desktop application using PyWebView.
 
-## For End Users (Non-Developers)
+## WSL2/Linux Installation Issues
+
+### Common WSL2 Problems
+
+**Problem: PyQt6 Installation Fails**
+WSL2 and Linux systems require system-level GUI packages that pip cannot install.
+
+**Solution:**
+```bash
+# For WSL2 (Ubuntu/Debian)
+sudo apt-get update
+sudo apt-get install python3-gi python3-gi-cairo gir1.2-webkit2-4.0
+sudo apt-get install python3-pyqt5 python3-pyqt5.qtwebkit
+
+# Enable GUI forwarding
+export DISPLAY=:0  # For X11 forwarding
+# OR use WSLg on Windows 11 (no DISPLAY setup needed)
+
+# Then install Python dependencies
+pip install -r requirements.txt
+```
+
+**For other Linux distributions:**
+```bash
+# Fedora/RHEL
+sudo dnf install python3-qt5 python3-qt5-devel python3-qt5-webkit
+
+# Arch Linux
+sudo pacman -S python-pyqt5 python-pyqt5-webkit
+
+# Then install Python dependencies
+pip install -r requirements.txt
+```
+
+### Display Setup for WSL2
+
+**Option 1: Windows 11 WSLg (Recommended)**
+Windows 11 includes built-in GUI support - no additional setup needed.
+
+**Option 2: X11 Forwarding**
+```bash
+# Install X11 server on Windows (e.g., VcXsrv, Xming)
+# Set DISPLAY variable in WSL2
+export DISPLAY=:0
+# Or add to ~/.bashrc for persistence
+echo 'export DISPLAY=:0' >> ~/.bashrc
+```
 
 ### Quick Start
 Download the pre-built executable for your operating system:

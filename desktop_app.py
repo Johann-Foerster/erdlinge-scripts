@@ -17,17 +17,75 @@ from core_logic import (
     process_lohnjournal
 )
 
+def check_gui_requirements():
+    """Prüfe GUI-Anforderungen und gebe hilfreiche Fehlermeldungen aus."""
+    import platform
+    import os
+    
+    system = platform.system()
+    
+    if system == "Darwin":
+        return True, "macOS WebView verfügbar"
+    
+    if system == "Windows":
+        # Unter Windows sollte PyQt normalerweise funktionieren
+        return True, "Windows GUI verfügbar"
+    
+    # Linux/WSL2 spezifische Prüfungen
+    if system == "Linux":
+        has_display = bool(os.environ.get('DISPLAY') or os.environ.get('WAYLAND_DISPLAY'))
+        
+        # WSL2 Detection
+        is_wsl = False
+        try:
+            with open('/proc/version', 'r') as f:
+                if 'WSL' in f.read().upper():
+                    is_wsl = True
+        except:
+            pass
+        
+        if is_wsl and not has_display:
+            error_msg = """
+WSL2 erkannt ohne GUI-Unterstützung. Lösungen:
+
+1. Windows 11 WSLg (empfohlen):
+   - Bereits integriert, sollte automatisch funktionieren
+   
+2. X11-Weiterleitung einrichten:
+   export DISPLAY=:0
+   
+3. System-GUI-Pakete installieren:
+   sudo apt-get install python3-pyqt5 python3-pyqt5.qtwebkit
+   sudo apt-get install python3-gi python3-gi-cairo gir1.2-webkit2-4.0
+
+Fallback: Browser-Version wird verwendet.
+"""
+            return False, error_msg.strip()
+        
+        if not has_display:
+            return False, "Keine Display-Umgebung erkannt. Headless-System?"
+    
+    return True, "GUI-Umgebung verfügbar"
+
+
 try:
     import webview
     WEBVIEW_AVAILABLE = True
     WEBVIEW_ERROR = None
+    
+    # Zusätzliche GUI-Prüfungen
+    gui_ok, gui_msg = check_gui_requirements()
+    if not gui_ok:
+        WEBVIEW_AVAILABLE = False
+        WEBVIEW_ERROR = gui_msg
+        
 except ImportError as e:
     WEBVIEW_AVAILABLE = False
-    WEBVIEW_ERROR = str(e)
+    WEBVIEW_ERROR = f"PyWebView nicht installiert: {str(e)}\n\nInstallation:\npip install pywebview PyQt5"
     import webbrowser
 except Exception as e:
     WEBVIEW_AVAILABLE = False
-    WEBVIEW_ERROR = f"PyWebView initialization error: {str(e)}"
+    WEBVIEW_ERROR = f"PyWebView Initialisierungsfehler: {str(e)}"
     import webbrowser
 
 
@@ -381,11 +439,21 @@ def main():
         if "qtpy" in error_msg or "qt" in error_msg:
             print("")
             print("PyWebView benötigt Qt-Bibliotheken:")
-            print("Installieren Sie: pip install PyQt5 oder pip install PyQt6")
+            print("WSL2/Linux: sudo apt-get install python3-pyqt5 python3-pyqt5.qtwebkit")
+            print("Windows/Linux: pip install PyQt5")
+            print("")
+            print("WSL2 zusätzlich benötigt:")
+            print("export DISPLAY=:0  # oder Windows 11 WSLg verwenden")
         elif "gtk" in error_msg:
             print("")
             print("GTK-Bibliotheken fehlen:")
-            print("Linux: sudo apt-get install python3-gi python3-gi-cairo gir1.2-webkit2-4.0")
+            print("sudo apt-get install python3-gi python3-gi-cairo gir1.2-webkit2-4.0")
+        elif "display" in error_msg or "wayland" in error_msg or "x11" in error_msg:
+            print("")
+            print("GUI-Display nicht verfügbar (WSL2/Headless):")
+            print("1. Windows 11: WSLg sollte automatisch funktionieren")
+            print("2. Ältere Versionen: export DISPLAY=:0")
+            print("3. X11-Server auf Windows installieren (VcXsrv, Xming)")
         else:
             print("")
             print("Mögliche Lösungen:")

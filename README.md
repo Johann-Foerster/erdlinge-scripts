@@ -23,25 +23,45 @@ Nur für CLI und Web-Interface (ohne native Desktop-App):
 pip install -r requirements-minimal.txt
 ```
 
-### Manuelle Installation der Desktop-Abhängigkeiten
-Falls PyWebView-Fehler auftreten:
+### Plattformspezifische Installation
 
-**Windows/Linux:**
+**WSL2/Linux:**
+WSL2 benötigt System-Pakete für GUI-Unterstützung:
 ```bash
-pip install PyQt5
-# Oder: pip install PyQt6
+# System-GUI-Pakete installieren
+sudo apt-get update
+sudo apt-get install python3-gi python3-gi-cairo gir1.2-webkit2-4.0
+sudo apt-get install python3-pyqt5 python3-pyqt5.qtwebkit
+
+# GUI-Weiterleitung aktivieren
+export DISPLAY=:0  # oder WSLg unter Windows 11 verwenden
+
+# Dann Python-Abhängigkeiten installieren
+pip install -r requirements.txt
 ```
 
-**Linux (Alternative mit GTK):**
+**Linux (Ubuntu/Debian):**
 ```bash
-sudo apt-get install python3-gi python3-gi-cairo gir1.2-webkit2-4.0
+sudo apt-get install python3-pyqt5 python3-pyqt5-dev python3-pyqt5.qtwebkit
+pip install -r requirements.txt
+```
+
+**Linux (Fedora/RHEL):**
+```bash
+sudo dnf install python3-qt5 python3-qt5-devel python3-qt5-webkit
+pip install -r requirements.txt
+```
+
+**Windows:**
+```bash
+pip install -r requirements.txt
+# PyQt wird automatisch über pip installiert
 ```
 
 **macOS:**
 ```bash
-# Keine zusätzlichen Abhängigkeiten erforderlich
-# PyWebView nutzt das System-WebView
-pip install pywebview
+pip install -r requirements.txt
+# Nutzt das System-WebView, keine zusätzlichen Abhängigkeiten erforderlich
 ```
 
 ## Verwendung
