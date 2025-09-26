@@ -20,8 +20,14 @@ from core_logic import (
 try:
     import webview
     WEBVIEW_AVAILABLE = True
-except ImportError:
+    WEBVIEW_ERROR = None
+except ImportError as e:
     WEBVIEW_AVAILABLE = False
+    WEBVIEW_ERROR = str(e)
+    import webbrowser
+except Exception as e:
+    WEBVIEW_AVAILABLE = False
+    WEBVIEW_ERROR = f"PyWebView initialization error: {str(e)}"
     import webbrowser
 
 
@@ -293,7 +299,15 @@ def main():
     
     if not WEBVIEW_AVAILABLE:
         print("PyWebView nicht verfügbar. Fallback auf Browser-Version...")
-        print("Installieren Sie PyWebView für native Desktop-Erfahrung: pip install pywebview")
+        print(f"Fehler: {WEBVIEW_ERROR}")
+        print("")
+        print("Für die native Desktop-Anwendung installieren Sie die erforderlichen Abhängigkeiten:")
+        print("1. Für Windows/Linux: pip install PyQt5 oder pip install PyQt6")
+        print("2. Für Linux (alternative): sudo apt-get install python3-gi python3-gi-cairo gir1.2-webkit2-4.0")
+        print("3. Für macOS: PyWebView nutzt das System-WebView (keine zusätzlichen Abhängigkeiten erforderlich)")
+        print("")
+        print("Vollständige Installation: pip install -r requirements.txt")
+        print("")
         
         # Fallback to browser version
         from standalone_app import main as browser_main
@@ -361,7 +375,25 @@ def main():
         webview.start(debug=debug_mode, http_server=False)
         
     except Exception as e:
+        error_msg = str(e).lower()
         print(f"Fehler beim Starten der Desktop-Anwendung: {e}")
+        
+        if "qtpy" in error_msg or "qt" in error_msg:
+            print("")
+            print("PyWebView benötigt Qt-Bibliotheken:")
+            print("Installieren Sie: pip install PyQt5 oder pip install PyQt6")
+        elif "gtk" in error_msg:
+            print("")
+            print("GTK-Bibliotheken fehlen:")
+            print("Linux: sudo apt-get install python3-gi python3-gi-cairo gir1.2-webkit2-4.0")
+        else:
+            print("")
+            print("Mögliche Lösungen:")
+            print("1. Windows/Linux: pip install PyQt5")
+            print("2. Linux (alternative): sudo apt-get install python3-gi python3-gi-cairo gir1.2-webkit2-4.0")
+            print("3. Vollständige Neuinstallation: pip install -r requirements.txt")
+        
+        print("")
         print("Fallback: Öffne im Browser...")
         import webbrowser
         webbrowser.open(url)

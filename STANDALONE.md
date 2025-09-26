@@ -41,12 +41,23 @@ Download the pre-built executable for your operating system:
 
 #### Prerequisites
 ```bash
+# Full installation (recommended)
 pip install -r requirements.txt
+
+# If PyWebView fails, install GUI backend manually:
+# Windows/Linux: pip install PyQt5
+# Linux alternative: sudo apt-get install python3-gi python3-gi-cairo gir1.2-webkit2-4.0
+# macOS: pip install pywebview (uses system WebView)
 ```
+
+**Common PyWebView Installation Issues:**
+- **Windows**: Install Visual C++ Redistributable if PyQt5/PyQt6 fails
+- **Linux**: Install GTK development headers: `sudo apt-get install libgtk-3-dev`
+- **macOS**: Ensure Xcode Command Line Tools are installed: `xcode-select --install`
 
 #### Building for Your Platform
 ```bash
-# Install all dependencies including PyWebView
+# Install all dependencies including PyWebView and GUI backends
 pip install -r requirements.txt
 
 # Build both versions

@@ -11,9 +11,37 @@ Dieses Repository enthält Skripte zur Verarbeitung verschiedener Arten von PDF-
 
 ## Installation
 
-1. Installieren Sie die erforderlichen Abhängigkeiten:
+### Vollinstallation (Empfohlen)
+Für alle Funktionen einschließlich nativer Desktop-Anwendung:
 ```bash
 pip install -r requirements.txt
+```
+
+### Minimalinstallation
+Nur für CLI und Web-Interface (ohne native Desktop-App):
+```bash
+pip install -r requirements-minimal.txt
+```
+
+### Manuelle Installation der Desktop-Abhängigkeiten
+Falls PyWebView-Fehler auftreten:
+
+**Windows/Linux:**
+```bash
+pip install PyQt5
+# Oder: pip install PyQt6
+```
+
+**Linux (Alternative mit GTK):**
+```bash
+sudo apt-get install python3-gi python3-gi-cairo gir1.2-webkit2-4.0
+```
+
+**macOS:**
+```bash
+# Keine zusätzlichen Abhängigkeiten erforderlich
+# PyWebView nutzt das System-WebView
+pip install pywebview
 ```
 
 ## Verwendung

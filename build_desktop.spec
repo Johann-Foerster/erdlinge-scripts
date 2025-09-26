@@ -39,7 +39,23 @@ a = Analysis(
         'time',
         'sys',
         'urllib.request',
-        'urllib'
+        'urllib',
+        # PyWebView GUI backends
+        'PyQt5',
+        'PyQt5.QtCore',
+        'PyQt5.QtGui',
+        'PyQt5.QtWidgets',
+        'PyQt5.QtWebEngineWidgets',
+        'PyQt6',
+        'PyQt6.QtCore',
+        'PyQt6.QtGui',
+        'PyQt6.QtWidgets',
+        'PyQt6.QtWebEngineWidgets',
+        # GTK backend (Linux)
+        'gi',
+        'gi.repository',
+        'gi.repository.Gtk',
+        'gi.repository.WebKit2'
     ],
     hookspath=[],
     hooksconfig={},
