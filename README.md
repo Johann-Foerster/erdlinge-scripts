@@ -18,6 +18,44 @@ pip install -r requirements.txt
 
 ## Verwendung
 
+### Standalone-Anwendung (Empfohlen für Endbenutzer)
+
+Für Benutzer ohne Python-Kenntnisse bieten wir vorgefertigte ausführbare Dateien:
+
+**Verfügbare Downloads:**
+- `ErdlingeScripts-Windows.exe` - Für Windows 10/11
+- `ErdlingeScripts-MacOS` - Für macOS 10.15+  
+- `ErdlingeScripts-Linux` - Für Ubuntu/Debian/CentOS
+
+**Installation:**
+1. Laden Sie die entsprechende Datei für Ihr Betriebssystem herunter
+2. Doppelklicken Sie die Datei (Windows) oder führen Sie sie im Terminal aus (Linux/Mac)
+3. Die Anwendung startet automatisch und öffnet Ihren Webbrowser
+4. Verwenden Sie die benutzerfreundliche Web-Oberfläche zum Hochladen und Verarbeiten von PDF-Dateien
+
+**Vorteile der Standalone-Anwendung:**
+- Keine Python-Installation erforderlich
+- Automatische Browser-Öffnung
+- Alle Abhängigkeiten sind enthalten
+- Einfache Bedienung für Nicht-Entwickler
+
+### Standalone-Anwendung selbst erstellen
+
+Falls Sie die Anwendung selbst kompilieren möchten:
+
+```bash
+# Abhängigkeiten installieren
+pip install -r requirements.txt
+
+# Standalone-Anwendung erstellen
+# Für Windows:
+build.bat
+
+# Für Linux/Mac:
+chmod +x build.sh
+./build.sh
+```
+
 ### Kommandozeilen-Interface (CLI)
 
 Die ursprünglichen CLI-Skripte bleiben erhalten und können wie zuvor verwendet werden:
@@ -42,7 +80,7 @@ Jedes Skript erwartet PDF-Dateien in spezifischen Verzeichnisstrukturen:
 - `ag_belastung/2024/Jan-Dez.pdf`
 - `lohnjournal/12.2024.pdf`
 
-### Web-Interface (Gradio App)
+### Web-Interface (Entwickler)
 
 Für eine benutzerfreundlichere Erfahrung verwenden Sie das Gradio-Web-Interface:
 
@@ -50,7 +88,15 @@ Für eine benutzerfreundlichere Erfahrung verwenden Sie das Gradio-Web-Interface
 python gradio_app.py
 ```
 
-Dies startet einen Webserver unter `http://localhost:7860` mit Registerkarten für jeden Dokumenttyp. Sie können:
+### Standalone Web-Interface (Automatischer Browser-Start)
+
+Für eine bessere Benutzererfahrung mit automatischer Browser-Öffnung:
+
+```bash
+python standalone_app.py
+```
+
+Dies startet einen Webserver auf einem zufälligen freien Port und öffnet automatisch Ihren Webbrowser. Sie können:
 
 1. PDF-Dateien über das Web-Interface hochladen
 2. Das Jahr für die Verarbeitung angeben

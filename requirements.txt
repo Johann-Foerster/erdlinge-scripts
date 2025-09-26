@@ -3,3 +3,4 @@ tika
 pandas
 openpyxl
 numpy
+pyinstaller
