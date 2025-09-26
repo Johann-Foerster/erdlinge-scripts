@@ -1,30 +1,39 @@
 # Erdlinge Scripts - Standalone Application Guide
 
-This guide explains how to create and use standalone executable applications for the Erdlinge Scripts PDF processing tool.
+This guide explains how to create and use standalone executable applications for the Erdlinge Scripts PDF processing tool, including the new native desktop application using PyWebView.
 
 ## For End Users (Non-Developers)
 
 ### Quick Start
-1. Download the pre-built executable for your operating system:
-   - **Windows**: `ErdlingeScripts.exe`
-   - **macOS**: `ErdlingeScripts` (macOS app bundle)
-   - **Linux**: `ErdlingeScripts` (Linux executable)
+Download the pre-built executable for your operating system:
 
-2. Double-click the executable file
-3. The application will automatically:
-   - Find a free port on your system
-   - Start the web server
-   - Open your default web browser
-   - Display the PDF processing interface
+**Native Desktop Applications (Recommended):**
+- **Windows**: `ErdlingeScriptsDesktop.exe`
+- **macOS**: `ErdlingeScriptsDesktop` (macOS app bundle)
+- **Linux**: `ErdlingeScriptsDesktop` (Linux executable)
 
-4. Use the web interface to upload and process PDF files
+**Browser-Based Applications:**
+- **Windows**: `ErdlingeScripts.exe`
+- **macOS**: `ErdlingeScripts` (macOS app bundle)
+- **Linux**: `ErdlingeScripts` (Linux executable)
 
-### Features
-- **No Python Installation Required**: All dependencies are bundled
-- **Auto-Browser Opening**: Automatically opens in your default browser
-- **Random Port Selection**: Avoids conflicts with other applications
-- **German Interface**: Fully localized German user interface
-- **File Processing**: Same functionality as CLI scripts but with GUI
+### Usage
+1. Double-click the executable file
+2. **Desktop Version**: Opens in a native desktop window
+3. **Browser Version**: Opens automatically in your default web browser
+4. Use the interface to upload and process PDF files
+
+### Features Comparison
+
+| Feature | Desktop App | Browser App |
+|---------|-------------|-------------|
+| Native Window | ✅ | ❌ |
+| Browser Required | ❌ | ✅ |
+| Offline Operation | ✅ | ✅ |
+| OS Integration | ✅ | ⚠️ |
+| File Dialogs | Native | Web-based |
+| Professional Look | ✅ | ⚠️ |
+| Memory Usage | Lower | Higher |
 
 ## For Developers
 
@@ -37,6 +46,10 @@ pip install -r requirements.txt
 
 #### Building for Your Platform
 ```bash
+# Install all dependencies including PyWebView
+pip install -r requirements.txt
+
+# Build both versions
 # On Windows
 build.bat
 
@@ -45,15 +58,26 @@ chmod +x build.sh
 ./build.sh
 ```
 
+This creates two executables:
+- **Desktop Version**: Native window application using PyWebView
+- **Browser Version**: Traditional web application that opens in browser
+
 #### Manual PyInstaller Build
 ```bash
+# Desktop version (PyWebView)
+pyinstaller build_desktop.spec --clean --noconfirm
+
+# Browser version (traditional)
 pyinstaller build.spec --clean --noconfirm
 ```
 
 ### Development Mode
-For development and testing, you can run the standalone app directly:
+For development and testing, you can run the applications directly:
 
 ```bash
+# Desktop application (PyWebView - native window)
+python desktop_app.py
+
 # Standard Gradio app (fixed port 7860)
 python gradio_app.py
 
@@ -62,10 +86,12 @@ python standalone_app.py
 
 # Using convenience scripts
 # Windows:
-start.bat
+start_desktop.bat  # Desktop version
+start.bat          # Browser version
 
 # Linux/macOS:
-./start.sh
+./start_desktop.sh # Desktop version
+./start.sh         # Browser version
 ```
 
 ## Technical Details

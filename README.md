@@ -23,37 +23,65 @@ pip install -r requirements.txt
 Für Benutzer ohne Python-Kenntnisse bieten wir vorgefertigte ausführbare Dateien:
 
 **Verfügbare Downloads:**
-- `ErdlingeScripts-Windows.exe` - Für Windows 10/11
-- `ErdlingeScripts-MacOS` - Für macOS 10.15+  
-- `ErdlingeScripts-Linux` - Für Ubuntu/Debian/CentOS
+- `ErdlingeScriptsDesktop-Windows.exe` - **Native Desktop App** für Windows 10/11
+- `ErdlingeScriptsDesktop-MacOS` - **Native Desktop App** für macOS 10.15+  
+- `ErdlingeScriptsDesktop-Linux` - **Native Desktop App** für Ubuntu/Debian/CentOS
+- `ErdlingeScripts-Windows.exe` - Browser-basierte Version für Windows 10/11
+- `ErdlingeScripts-MacOS` - Browser-basierte Version für macOS 10.15+
+- `ErdlingeScripts-Linux` - Browser-basierte Version für Ubuntu/Debian/CentOS
 
 **Installation:**
 1. Laden Sie die entsprechende Datei für Ihr Betriebssystem herunter
-2. Doppelklicken Sie die Datei (Windows) oder führen Sie sie im Terminal aus (Linux/Mac)
-3. Die Anwendung startet automatisch und öffnet Ihren Webbrowser
-4. Verwenden Sie die benutzerfreundliche Web-Oberfläche zum Hochladen und Verarbeiten von PDF-Dateien
+2. Doppelklicken Sie die Datei
+3. **Desktop-Version**: Öffnet sich in nativer Desktop-Anwendung
+4. **Browser-Version**: Öffnet sich automatisch im Webbrowser
+5. Verwenden Sie die benutzerfreundliche Oberfläche zum Hochladen und Verarbeiten von PDF-Dateien
 
-**Vorteile der Standalone-Anwendung:**
-- Keine Python-Installation erforderlich
-- Automatische Browser-Öffnung
-- Alle Abhängigkeiten sind enthalten
-- Einfache Bedienung für Nicht-Entwickler
+**Vorteile der Desktop-Anwendung:**
+- ✅ **Native Desktop-Erfahrung** mit eigenem Fenster
+- ✅ **Keine Browser-Abhängigkeit** - funktioniert offline
+- ✅ **Bessere Integration** in das Betriebssystem
+- ✅ **Professionelles Erscheinungsbild** für Geschäftsumgebungen
+- ✅ **Einfachere Dateiverwaltung** mit nativen Dialogen
+- ✅ **Keine Python-Installation erforderlich**
+- ✅ **Alle Abhängigkeiten sind enthalten**
 
 ### Standalone-Anwendung selbst erstellen
 
 Falls Sie die Anwendung selbst kompilieren möchten:
 
 ```bash
-# Abhängigkeiten installieren
+# Abhängigkeiten installieren (einschließlich PyWebView für native Desktop-App)
 pip install -r requirements.txt
 
-# Standalone-Anwendung erstellen
+# Beide Versionen erstellen:
 # Für Windows:
 build.bat
 
 # Für Linux/Mac:
 chmod +x build.sh
 ./build.sh
+```
+
+**Zwei Build-Ausgaben:**
+- `ErdlingeScriptsDesktop` - Native Desktop-Anwendung mit PyWebView
+- `ErdlingeScripts` - Browser-basierte Anwendung
+
+### Desktop-Anwendung (Entwickler)
+
+Für die beste Benutzererfahrung mit nativer Desktop-App:
+
+```bash
+python desktop_app.py
+```
+
+**Oder mit Startskripten:**
+```bash
+# Windows:
+start_desktop.bat
+
+# Linux/Mac:
+./start_desktop.sh
 ```
 
 ### Kommandozeilen-Interface (CLI)
