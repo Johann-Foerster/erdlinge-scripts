@@ -281,15 +281,23 @@ def main():
     
     # Launch app
     try:
-        app.launch(
-            server_name="127.0.0.1",
-            server_port=port,
-            share=False,
-            show_error=True,
-            quiet=False,
-            show_tips=False,
-            inbrowser=False  # We handle browser opening manually
-        )
+        # Build launch parameters compatible with different Gradio versions
+        launch_params = {
+            "server_name": "127.0.0.1",
+            "server_port": port,
+            "share": False,
+            "show_error": True,
+            "quiet": False,
+            "inbrowser": False  # We handle browser opening manually
+        }
+        
+        # Check if show_tips parameter is supported (newer Gradio versions)
+        import inspect
+        launch_signature = inspect.signature(app.launch)
+        if 'show_tips' in launch_signature.parameters:
+            launch_params['show_tips'] = False
+        
+        app.launch(**launch_params)
     except KeyboardInterrupt:
         print("\nAnwendung beendet.")
     except Exception as e:

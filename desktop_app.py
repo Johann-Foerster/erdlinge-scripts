@@ -267,16 +267,24 @@ def create_app():
 
 def start_gradio_server(app, port):
     """Start Gradio server in a separate thread"""
-    app.launch(
-        server_name="127.0.0.1",
-        server_port=port,
-        share=False,
-        show_error=True,
-        quiet=True,
-        show_tips=False,
-        inbrowser=False,
-        prevent_thread_lock=True
-    )
+    # Build launch parameters compatible with different Gradio versions
+    launch_params = {
+        "server_name": "127.0.0.1",
+        "server_port": port,
+        "share": False,
+        "show_error": True,
+        "quiet": True,
+        "inbrowser": False,
+        "prevent_thread_lock": True
+    }
+    
+    # Check if show_tips parameter is supported (newer Gradio versions)
+    import inspect
+    launch_signature = inspect.signature(app.launch)
+    if 'show_tips' in launch_signature.parameters:
+        launch_params['show_tips'] = False
+    
+    app.launch(**launch_params)
 
 
 def main():
@@ -304,19 +312,28 @@ def main():
     # Start Gradio server in background thread
     server_thread = threading.Thread(target=start_gradio_server, args=(app, port))
     server_thread.daemon = True
-    server_thread.start()
+    
+    try:
+        server_thread.start()
+    except Exception as e:
+        print(f"Fehler beim Starten des Server-Threads: {e}")
+        return
     
     # Wait for server to start
     print("Warte auf Server-Start...")
-    time.sleep(2)
+    time.sleep(3)  # Give more time for server startup
     
     # Test if server is running
     try:
         import urllib.request
-        urllib.request.urlopen(url, timeout=5)
+        urllib.request.urlopen(url, timeout=10)
         print("Server erfolgreich gestartet.")
     except Exception as e:
         print(f"Fehler beim Verbinden zum Server: {e}")
+        print("Mögliche Lösungen:")
+        print("1. Stellen Sie sicher, dass alle Abhängigkeiten installiert sind: pip install -r requirements.txt")
+        print("2. Prüfen Sie, ob der Port bereits verwendet wird")
+        print("3. Versuchen Sie die Browser-Version: python standalone_app.py")
         return
     
     print("Öffne native Desktop-Anwendung...")
