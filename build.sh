@@ -1,54 +1,35 @@
 #!/bin/bash
-# Enhanced build script for creating standalone executables
+# Simple build script for creating standalone executable
 
-echo "Building Erdlinge Scripts standalone executables..."
+echo "Building Erdlinge Scripts standalone executable..."
 
-# Install PyInstaller and PyWebView if not already installed
-pip install pyinstaller pywebview
+# Install PyInstaller if not already installed
+pip install pyinstaller
 
 # Create build directory
 mkdir -p dist/
 
-echo "Building standard standalone executable (browser-based)..."
+echo "Building standalone executable (browser-based)..."
 
-# Build the standard executable using the spec file
+# Build the executable using the spec file
 pyinstaller build.spec --clean --noconfirm
 
-echo "Building desktop executable (native window with PyWebView)..."
-
-# Build the desktop executable using the desktop spec file
-pyinstaller build_desktop.spec --clean --noconfirm
-
 echo "Build completed!"
-echo "Standard executable location: dist/ErdlingeScripts"
-echo "Desktop executable location: dist/ErdlingeScriptsDesktop"
+echo "Executable location: dist/ErdlingeScripts"
 
-# Create run scripts for both versions
-cat > dist/run_standard.sh << 'EOF'
+# Create run script
+cat > dist/run.sh << 'EOL'
 #!/bin/bash
-echo "Starting Erdlinge Scripts (Browser Version)..."
+echo "Starting Erdlinge Scripts..."
 cd "$(dirname "$0")"
 ./ErdlingeScripts
-EOF
+EOL
 
-cat > dist/run_desktop.sh << 'EOF'
-#!/bin/bash
-echo "Starting Erdlinge Scripts (Desktop Version)..."
-cd "$(dirname "$0")"
-./ErdlingeScriptsDesktop
-EOF
-
-chmod +x dist/run_standard.sh
-chmod +x dist/run_desktop.sh
+chmod +x dist/run.sh
 
 echo ""
-echo "To run the applications:"
-echo "  Standard (Browser) Version:"
-echo "    - Windows: Double-click ErdlingeScripts.exe"
-echo "    - Linux/Mac: ./ErdlingeScripts or ./run_standard.sh"
+echo "To run the application:"
+echo "  - Windows: Double-click ErdlingeScripts.exe"
+echo "  - Linux/Mac: ./ErdlingeScripts or ./run.sh"
 echo ""
-echo "  Desktop (Native Window) Version:"
-echo "    - Windows: Double-click ErdlingeScriptsDesktop.exe"  
-echo "    - Linux/Mac: ./ErdlingeScriptsDesktop or ./run_desktop.sh"
-echo ""
-echo "The desktop version provides a native window experience!"
+echo "The application will automatically open in your default browser!"

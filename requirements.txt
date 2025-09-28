@@ -1,15 +1,6 @@
-gradio>=4.0.0
-tika
-pandas
-openpyxl
-numpy
-pyinstaller
-pywebview
-# GUI backends for PyWebView (choose one based on platform)
-# Note: On WSL2/Linux, install system packages first:
-# sudo apt-get install python3-pyqt5 python3-pyqt5.qtwebkit python3-gi python3-gi-cairo gir1.2-webkit2-4.0
-PyQt5; platform_system != "Darwin"
-PyQt6; platform_system != "Darwin"
-# Alternative GTK backend for Linux/WSL2
-pygobject; platform_system == "Linux"
-# Alternative: Use system WebView on macOS (no additional deps needed)
+gradio>=4.0.0,<5.0.0
+tika==2.6.0
+pandas>=2.0.0,<3.0.0
+openpyxl>=3.1.0,<4.0.0
+numpy>=1.24.0,<2.0.0
+pyinstaller>=6.0.0,<7.0.0

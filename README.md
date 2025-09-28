@@ -11,211 +11,147 @@ Dieses Repository enthält Skripte zur Verarbeitung verschiedener Arten von PDF-
 
 ## Installation
 
-### Vollinstallation (Empfohlen)
-Für alle Funktionen einschließlich nativer Desktop-Anwendung:
+### Einfache Installation
 ```bash
 pip install -r requirements.txt
 ```
 
-### Minimalinstallation
-Nur für CLI und Web-Interface (ohne native Desktop-App):
+## Nutzung
+
+### 1. Standalone-Anwendung (Empfohlen für Endbenutzer)
+
+**Ausführbare Datei erstellen:**
 ```bash
-pip install -r requirements-minimal.txt
-```
-
-### Plattformspezifische Installation
-
-**WSL2/Linux:**
-WSL2 benötigt System-Pakete für GUI-Unterstützung:
-```bash
-# System-GUI-Pakete installieren
-sudo apt-get update
-sudo apt-get install python3-gi python3-gi-cairo gir1.2-webkit2-4.0
-sudo apt-get install python3-pyqt5 python3-pyqt5.qtwebkit
-
-# GUI-Weiterleitung aktivieren
-export DISPLAY=:0  # oder WSLg unter Windows 11 verwenden
-
-# Dann Python-Abhängigkeiten installieren
-pip install -r requirements.txt
-```
-
-**Linux (Ubuntu/Debian):**
-```bash
-sudo apt-get install python3-pyqt5 python3-pyqt5-dev python3-pyqt5.qtwebkit
-pip install -r requirements.txt
-```
-
-**Linux (Fedora/RHEL):**
-```bash
-sudo dnf install python3-qt5 python3-qt5-devel python3-qt5-webkit
-pip install -r requirements.txt
-```
-
-**Windows:**
-```bash
-pip install -r requirements.txt
-# PyQt wird automatisch über pip installiert
-```
-
-**macOS:**
-```bash
-pip install -r requirements.txt
-# Nutzt das System-WebView, keine zusätzlichen Abhängigkeiten erforderlich
-```
-
-## Verwendung
-
-### Standalone-Anwendung (Empfohlen für Endbenutzer)
-
-Für Benutzer ohne Python-Kenntnisse bieten wir vorgefertigte ausführbare Dateien:
-
-**Verfügbare Downloads:**
-- `ErdlingeScriptsDesktop-Windows.exe` - **Native Desktop App** für Windows 10/11
-- `ErdlingeScriptsDesktop-MacOS` - **Native Desktop App** für macOS 10.15+  
-- `ErdlingeScriptsDesktop-Linux` - **Native Desktop App** für Ubuntu/Debian/CentOS
-- `ErdlingeScripts-Windows.exe` - Browser-basierte Version für Windows 10/11
-- `ErdlingeScripts-MacOS` - Browser-basierte Version für macOS 10.15+
-- `ErdlingeScripts-Linux` - Browser-basierte Version für Ubuntu/Debian/CentOS
-
-**Installation:**
-1. Laden Sie die entsprechende Datei für Ihr Betriebssystem herunter
-2. Doppelklicken Sie die Datei
-3. **Desktop-Version**: Öffnet sich in nativer Desktop-Anwendung
-4. **Browser-Version**: Öffnet sich automatisch im Webbrowser
-5. Verwenden Sie die benutzerfreundliche Oberfläche zum Hochladen und Verarbeiten von PDF-Dateien
-
-**Vorteile der Desktop-Anwendung:**
-- ✅ **Native Desktop-Erfahrung** mit eigenem Fenster
-- ✅ **Keine Browser-Abhängigkeit** - funktioniert offline
-- ✅ **Bessere Integration** in das Betriebssystem
-- ✅ **Professionelles Erscheinungsbild** für Geschäftsumgebungen
-- ✅ **Einfachere Dateiverwaltung** mit nativen Dialogen
-- ✅ **Keine Python-Installation erforderlich**
-- ✅ **Alle Abhängigkeiten sind enthalten**
-
-### Standalone-Anwendung selbst erstellen
-
-Falls Sie die Anwendung selbst kompilieren möchten:
-
-```bash
-# Abhängigkeiten installieren (einschließlich PyWebView für native Desktop-App)
-pip install -r requirements.txt
-
-# Beide Versionen erstellen:
-# Für Windows:
+# Windows
 build.bat
 
-# Für Linux/Mac:
-chmod +x build.sh
+# Linux/macOS  
 ./build.sh
 ```
 
-**Zwei Build-Ausgaben:**
-- `ErdlingeScriptsDesktop` - Native Desktop-Anwendung mit PyWebView
-- `ErdlingeScripts` - Browser-basierte Anwendung
+**Anwendung starten:**
+- **Windows**: Doppelklick auf `dist/ErdlingeScripts.exe`
+- **Linux/macOS**: `./dist/ErdlingeScripts` ausführen
 
-### Desktop-Anwendung (Entwickler)
+Die Anwendung öffnet sich automatisch im Standard-Webbrowser.
 
-Für die beste Benutzererfahrung mit nativer Desktop-App:
-
-```bash
-python desktop_app.py
-```
-
-**Oder mit Startskripten:**
-```bash
-# Windows:
-start_desktop.bat
-
-# Linux/Mac:
-./start_desktop.sh
-```
-
-### Kommandozeilen-Interface (CLI)
-
-Die ursprünglichen CLI-Skripte bleiben erhalten und können wie zuvor verwendet werden:
+### 2. Web-Interface (Für Entwickler)
 
 ```bash
-# AAG Erstattungen verarbeiten
-python aag_erstattungen.py
+# Standalone-Version (zufälliger Port + automatischer Browser-Start)
+python standalone_app.py
 
-# Abrechnungen verarbeiten
-python abrechnungen.py
-
-# AG Belastung verarbeiten
-python ag_belastung.py
-
-# Lohnjournal verarbeiten
-python lohnjournal.py
-```
-
-Jedes Skript erwartet PDF-Dateien in spezifischen Verzeichnisstrukturen:
-- `aag_erstattungen/2024/*.pdf`
-- `abrechnungen/2024/*.pdf`
-- `ag_belastung/2024/Jan-Dez.pdf`
-- `lohnjournal/12.2024.pdf`
-
-### Web-Interface (Entwickler)
-
-Für eine benutzerfreundlichere Erfahrung verwenden Sie das Gradio-Web-Interface:
-
-```bash
+# Entwickler-Version (fester Port 7860)
 python gradio_app.py
 ```
 
-### Standalone Web-Interface (Automatischer Browser-Start)
-
-Für eine bessere Benutzererfahrung mit automatischer Browser-Öffnung:
+### 3. Kommandozeilen-Skripte (Original-Funktionalität)
 
 ```bash
-python standalone_app.py
+python aag_erstattungen.py
+python abrechnungen.py
+python ag_belastung.py
+python lohnjournal.py
 ```
 
-Dies startet einen Webserver auf einem zufälligen freien Port und öffnet automatisch Ihren Webbrowser. Sie können:
+## Dateistruktur
 
-1. PDF-Dateien über das Web-Interface hochladen
-2. Das Jahr für die Verarbeitung angeben
-3. Auf den Verarbeitungsbutton klicken
-4. Die generierten CSV/Excel-Ergebnisse herunterladen
+Die Skripte erwarten folgende Verzeichnisstruktur:
 
-#### Funktionen des Web-Interfaces:
+```
+aag_erstattungen/2024/*.pdf
+abrechnungen/2024/*.pdf
+ag_belastung/2024/Jan-Dez.pdf
+lohnjournal/12.2024.pdf
+```
 
-- **Registerkarten-Interface**: Separate Registerkarten für jeden Dokumenttyp
-- **Datei-Upload**: Drag-and-Drop oder Klick zum Hochladen von PDF-Dateien
-- **Echtzeitverarbeitung**: Verarbeitungsstatus anzeigen und Ergebnisse sofort herunterladen
-- **Mehrere Dateien unterstützt**: Mehrere Dateien hochladen wo unterstützt (AAG, Abrechnungen)
-- **Einzeldatei unterstützt**: Einzeldatei hochladen wo erforderlich (AG Belastung, Lohnjournal)
+## Ausgabedateien
 
-## Dateiformate
+- **AAG Erstattungen**: `AAG_Erstattungen_2024.csv`
+- **Abrechnungen**: `abrechnungen_2024.xlsx`
+- **AG Belastung**: `ag_belastung_2024_DEZ.xlsx`
+- **Lohnjournal**: `lohnjournal_2024.xlsx`
 
-### Eingabe
-- PDF-Dateien mit den entsprechenden Dokumenttypen
+## Funktionsweise
 
-### Ausgabe
-- **AAG Erstattungen**: CSV-Datei mit Semikolon-getrennten Werten
-- **Abrechnungen**: Excel-Datei mit mehreren Arbeitsblättern für verschiedene Datenkategorien
-- **AG Belastung**: Excel-Datei mit Arbeitgeberkostenaufschlüsselung
-- **Lohnjournal**: Excel-Datei mit Lohnzusammenfassungsdaten
+### Gemeinsame Kernlogik
+- Alle Interfaces (CLI, Web, Standalone) nutzen identische Verarbeitungsfunktionen aus `core_logic.py`
+- Gewährleistet konsistente Ergebnisse zwischen allen Nutzungsarten
+- Bug-Fixes profitieren automatisch von allen Interfaces
 
-## Abhängigkeiten
+### PDF-Verarbeitung
+- Verwendet Apache Tika für Textextraktion
+- Verarbeitet strukturierte deutsche Lohnabrechnung-Daten
+- Unterstützt deutsche Zahlenformate (Komma als Dezimaltrennzeichen)
 
-- `gradio` - Web-Interface-Framework
-- `tika` - PDF-Textextraktion
-- `pandas` - Datenmanipulation und Excel-Export
-- `openpyxl` - Excel-Dateibehandlung
-- `numpy` - Numerische Berechnungen
+### Ausgabeformate
+- **CSV**: Semicolon-getrennt (deutscher Standard)
+- **Excel**: Mehrere Arbeitsblätter mit deutschen Spaltenüberschriften
+- **Deutsche Zahlenformatierung**: Komma als Dezimaltrennzeichen
 
 ## Architektur
 
-Der Code ist strukturiert, um die Wiederverwendbarkeit zu maximieren:
+### Vereinfachte Struktur
+- **Standalone-App**: Browser-basierte Anwendung mit automatischem Browser-Start
+- **Web-Interface**: Gradio-basierte Benutzeroberfläche mit Tabbed Layout
+- **CLI-Skripte**: Original-Kommandozeilen-Funktionalität (unverändert)
+- **Kernlogik**: Geteilte Verarbeitungsfunktionen in `core_logic.py`
 
-- `core_logic.py` - Enthält die Kernverarbeitungsfunktionen, die aus den ursprünglichen CLI-Skripten extrahiert wurden
-- `gradio_app.py` - Web-Interface-Implementierung unter Verwendung der Kernlogik
-- `aag_erstattungen.py`, `abrechnungen.py`, `ag_belastung.py`, `lohnjournal.py` - CLI-Skripte, die die Kernlogik verwenden
+### Vorteile
+- **Einfachheit**: Keine komplexen GUI-Abhängigkeiten
+- **Zuverlässigkeit**: Browser-basierter Ansatz funktioniert universell
+- **Wartbarkeit**: Einheitlicher Code-Pfad für alle Interfaces
+- **Benutzerfreundlichkeit**: Automatischer Browser-Start für optimale Benutzererfahrung
 
-Dieses Design stellt sicher, dass:
-1. Die ursprüngliche CLI-Funktionalität erhalten bleibt
-2. Code nicht dupliziert wird
-3. Fehlerbehebungen und Verbesserungen sowohl CLI- als auch Web-Interfaces zugutekommen
-4. Die Kernlogik einfach getestet und gewartet werden kann
+## Unterstützte Plattformen
+
+- **Windows**: .exe-Datei
+- **Linux**: Standalone-Binary
+- **macOS**: Standalone-Anwendung
+- **WSL2**: Vollständige Unterstützung ohne zusätzliche Konfiguration
+
+## Fehlerbehebung
+
+### Build-Probleme
+- **PyInstaller nicht gefunden**: `pip install pyinstaller`
+- **Build schlägt fehl**: Stelle sicher, dass alle Abhängigkeiten installiert sind
+
+### Laufzeit-Probleme  
+- **Anwendung startet nicht**: Von Kommandozeile starten für Fehlermeldungen
+- **Browser öffnet nicht automatisch**: Manuell die angezeigte URL im Browser öffnen
+- **Port bereits belegt**: Anwendung findet automatisch freien Port
+
+## Entwicklung
+
+### Projekt-Setup
+```bash
+git clone <repository>
+cd erdlinge-scripts
+pip install -r requirements.txt
+```
+
+### Tests
+```bash
+# Web-Interface testen
+python gradio_app.py
+
+# Standalone-Version testen  
+python standalone_app.py
+
+# CLI-Skripte testen (mit entsprechenden PDF-Dateien)
+python aag_erstattungen.py
+```
+
+### Neue Funktionen hinzufügen
+1. Erweitere `core_logic.py` mit neuen Verarbeitungsfunktionen
+2. Aktualisiere `gradio_app.py` und `standalone_app.py` für Web-Interface
+3. Erstelle entsprechende CLI-Skripte falls benötigt
+4. Teste alle Interfaces
+
+## Beitragen
+
+Bei Fehlern oder Verbesserungsvorschlägen bitte Issues erstellen oder Pull Requests einreichen. Alle Änderungen sollten:
+- Deutsche Lokalisierung beibehalten
+- CLI-Kompatibilität bewahren
+- Einheitliche Verarbeitungsergebnisse sicherstellen
+- Dokumentation aktualisieren
