@@ -2,11 +2,11 @@ from core_logic import process_ag_belastung
 import glob, os
 
 YEAR = "2024"
-MON = "DEZ"
+MON = "August"
 
 # CLI script functionality preserved
 if __name__ == "__main__":
-    pdfs = glob.glob(f"ag_belastung/{YEAR}/Jan-Dez.pdf")
+    pdfs = glob.glob(f"ag_belastung/{YEAR}/{MON}.pdf")
     
     if len(pdfs) != 1:
         raise OSError("expected one pdf")
