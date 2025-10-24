@@ -5,7 +5,8 @@ import sys
 from pathlib import Path
 
 # Add current directory to path for imports
-current_dir = Path(__file__).parent.absolute()
+current_dir = Path.cwd().absolute()
+print("Current Directory:", current_dir)
 sys.path.insert(0, str(current_dir))
 
 a = Analysis(
@@ -13,45 +14,12 @@ a = Analysis(
     pathex=[str(current_dir)],
     binaries=[],
     datas=[
-        # Include any data files if needed
     ],
-    hiddenimports=[
-        'gradio',
-        'gradio.blocks',
-        'gradio.components', 
-        'gradio.themes',
-        'tika',
-        'pandas',
-        'openpyxl',
-        'numpy',
-        'core_logic',
-        'socket',
-        'threading',
-        'tempfile',
-        'dataclasses',
-        'collections',
-        'typing',
-        'csv',
-        're',
-        'glob',
-        'os',
-        'time',
-        'sys',
-        'urllib.request',
-        'urllib',
-        'webbrowser',
-        'inspect'
-    ],
+    hiddenimports=[],
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
-    excludes=[
-        # Exclude GUI backends since this is browser-based
-        'PyQt5',
-        'PyQt6',
-        'gi',
-        'tkinter'
-    ],
+    excludes=[],
     noarchive=False,
 )
 
