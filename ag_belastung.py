@@ -4,8 +4,8 @@ from pandas import DataFrame, ExcelWriter
 import glob, re, os
 
 YEAR = "2025"
-MON = "AUGUST"
-pdfs = glob.glob(f"ag_belastung/{YEAR}/August.pdf")
+MON = "Oktober"
+pdfs = glob.glob(f"ag_belastung/{YEAR}/Oktober.pdf")
 data = []
 
 HEADER_END = "Pers.Nr. Einheiten"

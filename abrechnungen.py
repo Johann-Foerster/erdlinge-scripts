@@ -6,7 +6,7 @@ from pandas import DataFrame, ExcelWriter
 import numpy as np
 import glob, os, re
 
-YEAR = "2024"
+YEAR = "2025"
 pdfs = glob.glob(f"abrechnungen/{YEAR}/*.pdf")
 data = []
 
@@ -18,7 +18,7 @@ MUT = "Mutterschaftsgeld"
 MUTF = "Mutterschutzfrist"
 BV = "Beschäftigungsverbot"
 WAZ = "Arb.Zeit"
-TVOD = "TVöD"
+TVOD = "TVöD SuE Arbeitnehmer Grundvergütung"
 
 
 def get_pages(filename):
@@ -142,7 +142,7 @@ class Page:
         return [index for index, line in enumerate(self._lines) if text in line][0]
 
     def gruppe_stufe(self, line: str):
-        parts = line.split("Grundvergütung")[2].strip().split(" ")
+        parts = line.split("Grundvergütung")[-1].strip().split(" ")
         return (
             f"S{parts[1]}/{parts[3]}" if parts[0] == "S" else f"{parts[0]}/{parts[2]}"
         )
