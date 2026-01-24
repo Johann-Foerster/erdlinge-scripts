@@ -1,7 +1,7 @@
 from tika import parser
 import glob, csv
 
-YEAR = "2024"
+YEAR = "2025"
 ROW_SUM = "Summe"
 pdfs = glob.glob(f"aag_erstattungen/{YEAR}/*.pdf")
 data = []
