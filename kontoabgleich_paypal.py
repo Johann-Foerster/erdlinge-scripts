@@ -15,8 +15,10 @@ def lese_paypal_konto(pfad):
             betrag_str = row["Brutto"].replace(".", "").replace(",", ".")
             betrag = round(float(betrag_str), 2)
             name = row["Name"].strip()
+            hinweis = row["Hinweis"].strip()
             typ = row["Typ"].strip()
-            betreff = f"{name} ({typ})" if name else typ
+            betreff = f"{name} | {hinweis}" if hinweis else f"{name} ({typ})"
+            
             buchungen.append((datum, betrag, betreff))
     return buchungen
 
