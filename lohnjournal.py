@@ -3,8 +3,8 @@ from tika import parser
 from pandas import DataFrame, ExcelWriter
 import glob, re, os
 
-YEAR = "2024"
-pdfs = glob.glob(f"lohnjournal/12.2024.pdf")
+YEAR = "2025"
+pdfs = glob.glob(f"lohnjournal/12.2025.pdf")
 data = []
 
 HEADER_END = "Name E Kl"
