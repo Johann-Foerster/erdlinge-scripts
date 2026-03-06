@@ -163,8 +163,8 @@ def main():
     print(f"  Nur GLS:          {len(nur_gls)}")
     print(f"  Nur Buchhaltung:  {len(nur_bh)}")
 
-    schreibe_ergebnis("kontoabgleich/kontoabgleich_gls.xlsx", nur_gls, nur_bh, uebereinstimmend)
-    print("\nDatei geschrieben: kontoabgleich/kontoabgleich_gls.xlsx")
+    schreibe_ergebnis("kontoabgleich_gls.xlsx", nur_gls, nur_bh, uebereinstimmend)
+    print("\nDatei geschrieben: kontoabgleich_gls.xlsx")
 
 
 if __name__ == "__main__":
