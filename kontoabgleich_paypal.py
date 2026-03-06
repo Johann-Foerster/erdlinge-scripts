@@ -18,8 +18,14 @@ def lese_paypal_konto(pfad):
             hinweis = row["Hinweis"].strip()
             typ = row["Typ"].strip()
             betreff = f"{name} | {hinweis}" if hinweis else f"{name} ({typ})"
-            
             buchungen.append((datum, betrag, betreff))
+
+            # Gebühren als separate Buchung erzeugen (Buchhaltung bucht diese separat)
+            gebuehr_str = row["Gebühr"].replace(".", "").replace(",", ".")
+            gebuehr = round(float(gebuehr_str), 2)
+            if gebuehr != 0:
+                buchungen.append((datum, gebuehr, f"Paypal Gebühren ({betreff})"))
+
     return buchungen
 
 
