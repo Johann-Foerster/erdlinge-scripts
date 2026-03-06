@@ -6,18 +6,17 @@ from openpyxl.styles import PatternFill, Font, Alignment
 
 
 def lese_gls_konto(pfad):
-    """Liest GLS_Konto.csv und gibt Liste von (datum, betrag, betreff) zurück."""
+    """Liest GLS_Konto.csv und gibt Liste von (buchungstag, valutadatum, betrag, betreff) zurück."""
     buchungen = []
     with open(pfad, encoding="utf-8") as f:
         reader = csv.DictReader(f, delimiter=";")
         for row in reader:
             buchungstag = datetime.strptime(row["Buchungstag"], "%d.%m.%Y").date()
             valutadatum = datetime.strptime(row["Valutadatum"], "%d.%m.%Y").date()
-            datum = min(buchungstag, valutadatum)
             betrag_str = row["Betrag"].replace(".", "").replace(",", ".")
             betrag = round(float(betrag_str), 2)
             betreff = row["Verwendungszweck"]
-            buchungen.append((datum, betrag, betreff))
+            buchungen.append((buchungstag, valutadatum, betrag, betreff))
     return buchungen
 
 
@@ -57,41 +56,82 @@ def lese_gls_buchhaltung(pfad):
 
 
 def abgleich(gls_buchungen, bh_buchungen):
-    """Matcht Buchungen anhand (Datum, Betrag). Gibt drei Listen zurück."""
+    """Matcht Buchungen in zwei Schritten. Gibt drei Listen zurück.
 
-    # Gruppiere nach (datum, betrag) -> Liste von Betreffen
-    gls_map = defaultdict(list)
-    for datum, betrag, betreff in gls_buchungen:
-        gls_map[(datum, betrag)].append(betreff)
-
-    bh_map = defaultdict(list)
-    for datum, betrag, betreff in bh_buchungen:
-        bh_map[(datum, betrag)].append(betreff)
-
-    alle_keys = set(gls_map.keys()) | set(bh_map.keys())
-
+    Schritt 1: Match auf (Buchungstag == Buchung Buchhaltung) und Betrag.
+    Schritt 2: Vom Rest Match auf (Valutadatum == Buchung Buchhaltung) und Betrag.
+    """
     uebereinstimmend = []
+
+    # -- Schritt 1: Buchungstag == Datum Buchhaltung --
+    gls_map1 = defaultdict(list)
+    for i, (buchungstag, valutadatum, betrag, betreff) in enumerate(gls_buchungen):
+        gls_map1[(buchungstag, betrag)].append(i)
+
+    bh_map1 = defaultdict(list)
+    for j, (datum_bh, betrag, betreff) in enumerate(bh_buchungen):
+        bh_map1[(datum_bh, betrag)].append(j)
+
+    matched_gls = set()
+    matched_bh = set()
+
+    for key in gls_map1:
+        if key in bh_map1:
+            gls_idx = gls_map1[key]
+            bh_idx = bh_map1[key]
+            for k in range(min(len(gls_idx), len(bh_idx))):
+                gi, bi = gls_idx[k], bh_idx[k]
+                buchungstag, valutadatum, betrag, betreff_gls = gls_buchungen[gi]
+                datum_bh, _, betreff_bh = bh_buchungen[bi]
+                uebereinstimmend.append(
+                    (datum_bh, buchungstag, valutadatum, betrag, betreff_gls, betreff_bh)
+                )
+                matched_gls.add(gi)
+                matched_bh.add(bi)
+
+    # -- Schritt 2: Valutadatum == Datum Buchhaltung (nur übrige) --
+    gls_rest = [(i, gls_buchungen[i]) for i in range(len(gls_buchungen)) if i not in matched_gls]
+    bh_rest = [(j, bh_buchungen[j]) for j in range(len(bh_buchungen)) if j not in matched_bh]
+
+    gls_map2 = defaultdict(list)
+    for idx, (_, (buchungstag, valutadatum, betrag, betreff)) in enumerate(gls_rest):
+        gls_map2[(valutadatum, betrag)].append(idx)
+
+    bh_map2 = defaultdict(list)
+    for idx, (_, (datum_bh, betrag, betreff)) in enumerate(bh_rest):
+        bh_map2[(datum_bh, betrag)].append(idx)
+
+    matched_gls2 = set()
+    matched_bh2 = set()
+
+    for key in gls_map2:
+        if key in bh_map2:
+            gls_idx = gls_map2[key]
+            bh_idx = bh_map2[key]
+            for k in range(min(len(gls_idx), len(bh_idx))):
+                gi, bi = gls_idx[k], bh_idx[k]
+                _, (buchungstag, valutadatum, betrag, betreff_gls) = gls_rest[gi]
+                _, (datum_bh, _, betreff_bh) = bh_rest[bi]
+                uebereinstimmend.append(
+                    (datum_bh, buchungstag, valutadatum, betrag, betreff_gls, betreff_bh)
+                )
+                matched_gls2.add(gi)
+                matched_bh2.add(bi)
+
+    # -- Verbleibender Rest --
     nur_gls = []
+    for idx, (_, (buchungstag, valutadatum, betrag, betreff)) in enumerate(gls_rest):
+        if idx not in matched_gls2:
+            nur_gls.append((None, buchungstag, valutadatum, betrag, betreff, ""))
+
     nur_bh = []
+    for idx, (_, (datum_bh, betrag, betreff)) in enumerate(bh_rest):
+        if idx not in matched_bh2:
+            nur_bh.append((datum_bh, None, None, betrag, "", betreff))
 
-    for key in sorted(alle_keys):
-        datum, betrag = key
-        gls_liste = gls_map.get(key, [])
-        bh_liste = bh_map.get(key, [])
-
-        # Matche paarweise so viele wie möglich
-        anzahl_match = min(len(gls_liste), len(bh_liste))
-
-        for i in range(anzahl_match):
-            uebereinstimmend.append((datum, betrag, gls_liste[i], bh_liste[i]))
-
-        # Überschüssige GLS-Buchungen
-        for i in range(anzahl_match, len(gls_liste)):
-            nur_gls.append((datum, betrag, gls_liste[i], ""))
-
-        # Überschüssige Buchhaltungs-Buchungen
-        for i in range(anzahl_match, len(bh_liste)):
-            nur_bh.append((datum, betrag, "", bh_liste[i]))
+    uebereinstimmend.sort(key=lambda x: (x[0] or x[1], x[3]))
+    nur_gls.sort(key=lambda x: (x[1], x[3]))
+    nur_bh.sort(key=lambda x: (x[0], x[3]))
 
     return nur_gls, nur_bh, uebereinstimmend
 
@@ -103,7 +143,10 @@ def schreibe_ergebnis(pfad, nur_gls, nur_bh, uebereinstimmend):
     ws.title = "Kontoabgleich GLS"
 
     # Header
-    headers = ["Datum", "Betrag", "Betreff GLS", "Betreff Buchhaltung", "Status"]
+    headers = [
+        "Buchung (Buchhaltung)", "Buchungstag", "Valutadatum",
+        "Betrag", "Betreff GLS", "Betreff Buchhaltung", "Status",
+    ]
     ws.append(headers)
 
     # Header-Formatierung
@@ -120,8 +163,8 @@ def schreibe_ergebnis(pfad, nur_gls, nur_bh, uebereinstimmend):
     fill_ok = PatternFill(start_color="E8F5E9", end_color="E8F5E9", fill_type="solid")
 
     def schreibe_block(daten, status, fill):
-        for datum, betrag, betreff_gls, betreff_bh in daten:
-            ws.append([datum, betrag, betreff_gls, betreff_bh, status])
+        for datum_bh, buchungstag, valutadatum, betrag, betreff_gls, betreff_bh in daten:
+            ws.append([datum_bh, buchungstag, valutadatum, betrag, betreff_gls, betreff_bh, status])
             for cell in ws[ws.max_row]:
                 cell.fill = fill
 
@@ -130,19 +173,21 @@ def schreibe_ergebnis(pfad, nur_gls, nur_bh, uebereinstimmend):
     schreibe_block(uebereinstimmend, "übereinstimmend", fill_ok)
 
     # Spaltenbreiten
-    ws.column_dimensions["A"].width = 12
+    ws.column_dimensions["A"].width = 22
     ws.column_dimensions["B"].width = 14
-    ws.column_dimensions["C"].width = 60
-    ws.column_dimensions["D"].width = 60
-    ws.column_dimensions["E"].width = 20
+    ws.column_dimensions["C"].width = 14
+    ws.column_dimensions["D"].width = 14
+    ws.column_dimensions["E"].width = 60
+    ws.column_dimensions["F"].width = 60
+    ws.column_dimensions["G"].width = 20
 
     # Betrag als Zahl formatieren
-    for row in ws.iter_rows(min_row=2, min_col=2, max_col=2):
+    for row in ws.iter_rows(min_row=2, min_col=4, max_col=4):
         for cell in row:
             cell.number_format = '#,##0.00'
 
     # Datum formatieren
-    for row in ws.iter_rows(min_row=2, min_col=1, max_col=1):
+    for row in ws.iter_rows(min_row=2, min_col=1, max_col=3):
         for cell in row:
             cell.number_format = 'DD.MM.YYYY'
 
