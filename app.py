@@ -119,7 +119,7 @@ def build_app():
             kontoabgleich_gls.process,
             "kontoabgleich_gls.xlsx",
             with_year=False,
-            file_types=(".csv", ".xlsx"),
+            file_types=(".csv", ".xls", ".xlsx"),
         )
         _make_tab(
             "Kontoabgleich PayPal",
@@ -127,7 +127,7 @@ def build_app():
             kontoabgleich_paypal.process,
             "kontoabgleich_paypal.xlsx",
             with_year=False,
-            file_types=(".csv", ".xlsx"),
+            file_types=(".csv", ".xls", ".xlsx"),
         )
 
     return demo

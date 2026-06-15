@@ -26,8 +26,7 @@ def get_pages(filename):
     if not num_pages == int(
         raw_xml["metadata"]["xmpTPg:NPages"]
     ):  # check if it worked correctly
-        print("FEHLER beim Abgleich der Seitenanzahl")
-        exit(1)
+        raise RuntimeError("FEHLER beim Abgleich der Seitenanzahl")
     return text_pages
 
 

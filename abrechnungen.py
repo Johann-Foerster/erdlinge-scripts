@@ -36,8 +36,7 @@ def get_pages(filename):
     if not num_pages == int(
         raw_xml["metadata"]["xmpTPg:NPages"]
     ):  # check if it worked correctly
-        print("FEHLER beim Abgleich der Seitenanzahl")
-        exit(1)
+        raise RuntimeError("FEHLER beim Abgleich der Seitenanzahl")
     return text_pages
 
 
@@ -173,6 +172,10 @@ def process(pdf_paths, year=YEAR, output_path=None):
     months = unique([page.month for page in pages])
     names = unique([page.name for page in pages])
 
+    if not months or not names:
+        raise ValueError(
+            f"Keine Seiten für das Jahr {year} gefunden. Bitte Jahr und PDFs prüfen."
+        )
     tables = [
         {"name": "Arbeitsmarktzulage", "field": "arbeitsmarktzulage"},
         {"name": "Münchenzulage", "field": "muenchenzulage"},
