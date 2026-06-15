@@ -2,6 +2,7 @@ from enum import unique
 from tika import parser
 from dataclasses import dataclass, field
 from collections import OrderedDict
+import pandas as pd
 from pandas import DataFrame, ExcelWriter
 import datetime
 import numpy as np
@@ -148,6 +149,12 @@ class Page:
 
 
 def process(pdf_paths, year=YEAR, output_path=None):
+    def _month_from_filename(path):
+        m = re.search(r"Verdienstabrechnung (\d{2})\.\d{4}", os.path.basename(path))
+        return int(m.group(1)) if m else float("inf")
+
+    pdf_paths = sorted(pdf_paths, key=_month_from_filename)
+
     pages = []
     print(f"Starte Verarbeitung von {len(pdf_paths)} PDF-Datei(en)...")
     for pdf in pdf_paths:
@@ -213,9 +220,9 @@ def process(pdf_paths, year=YEAR, output_path=None):
                     df.loc[employee, month] = (
                         data[month][employee][table["name"]]
                         if employee in data[month]
-                        else 0
+                        else None
                     )
-            if np.issubdtype(df.dtypes.values[0], np.number):
+            if pd.api.types.is_numeric_dtype(df.iloc[:, 0]):
                 df["Summe"] = df.sum(axis=1)
             title_df = DataFrame([{"Daten": table["name"]}])
             title_df.to_excel(
