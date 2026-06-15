@@ -1,5 +1,5 @@
 from pandas.core.arrays import boolean
-from tika import parser
+from pypdf import PdfReader
 from pandas import DataFrame, ExcelWriter
 import datetime
 import glob, re, os
@@ -12,22 +12,8 @@ FOOTER_START = "Lohnservice Wendel eG"
 
 
 def get_pages(filename):
-    raw_xml = parser.from_file(filename, xmlContent=True)
-    body = raw_xml["content"].split("<body>")[1].split("</body>")[0]
-    body_without_tag = (
-        body.replace("<p>", "")
-        .replace("</p>", "")
-        .replace("<div>", "")
-        .replace("</div>", "")
-        .replace("<p />", "")
-    )
-    text_pages = body_without_tag.split("""<div class="page">""")[1:]
-    num_pages = len(text_pages)
-    if not num_pages == int(
-        raw_xml["metadata"]["xmpTPg:NPages"]
-    ):  # check if it worked correctly
-        raise RuntimeError("FEHLER beim Abgleich der Seitenanzahl")
-    return text_pages
+    reader = PdfReader(filename)
+    return [page.extract_text() or "" for page in reader.pages]
 
 
 def parse_float(float_str_eu: str):
