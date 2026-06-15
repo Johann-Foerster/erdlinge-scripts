@@ -17,7 +17,8 @@ def get_pages(filename):
 
 
 def parse_float(float_str_eu: str):
-    return float(float_str_eu.replace(".", "").replace(",", "."))
+    normalized = re.sub(r"[⁰¹²³⁴⁵⁶⁷⁸⁹]+\)?$", "", float_str_eu.strip())
+    return float(normalized.replace(".", "").replace(",", "."))
 
 
 def unique(lst: list):
@@ -62,28 +63,25 @@ def process(pdf_paths, year=YEAR, output_path=None):
         if not re.match(r"^\d{6}$", line_split[0]):
             i += 1
             continue
-        gesamtbrutto = line_split[7] if len(line_split) >= 8 else "0"
-        steuerbrutto = line_split[8] if len(line_split) >= 9 else "0"
+        gesamtbrutto = parse_float(line_split[7]) if len(line_split) >= 8 else 0.0
+        steuerbrutto = parse_float(line_split[8]) if len(line_split) >= 9 else 0.0
         i += 1
         line_split = re.split(r"(\b\d{1,3}(?:\.\d{3})*,\d+\b)", lines[i], maxsplit=1)
         name = line_split[0].strip().strip(" *)")
         if not re.match(r"^\d{6}", lines[i + 1]) and not "Summen" in lines[i + 1]:
             print(f"FEHLER: nicht erwartetes format für {name}")
-            data[name] = {STEUERBRUTTO: "?", GESAMTBRUTTO: "?", SV_AG: "?"}
+            data[name] = {STEUERBRUTTO: None, GESAMTBRUTTO: None, SV_AG: None}
             i += 2
             continue
-        sv_ag = line_split[1] if len(line_split) > 1 else "0"
+        sv_ag = parse_float(line_split[1]) if len(line_split) > 1 else 0.0
         if name in data:
             print(
                 f"WARNUNG: Zwei Lohnjournal Seiten für {name} - addiere Werte - Kontrolle!"
             )
-            steuerbrutto = (
-                f"{(parse_float(data[name][STEUERBRUTTO]) + parse_float(steuerbrutto)):.2f}"
-            )
-            gesamtbrutto = (
-                f"{(parse_float(data[name][GESAMTBRUTTO]) + parse_float(gesamtbrutto)):.2f}"
-            )
-            sv_ag = f"{(parse_float(data[name][SV_AG]) + parse_float(sv_ag)):.2f}"
+            existing = data[name]
+            steuerbrutto = (existing[STEUERBRUTTO] or 0.0) + steuerbrutto
+            gesamtbrutto = (existing[GESAMTBRUTTO] or 0.0) + gesamtbrutto
+            sv_ag = (existing[SV_AG] or 0.0) + sv_ag
         data[name] = {
             STEUERBRUTTO: steuerbrutto,
             GESAMTBRUTTO: gesamtbrutto,
@@ -105,6 +103,10 @@ def process(pdf_paths, year=YEAR, output_path=None):
         title_df.to_excel(writer, sheet_name=TITLE, index=False, header=False, startrow=0)
         df.to_excel(writer, sheet_name=TITLE, index=True, header=True, startrow=2)
         writer.sheets[TITLE].column_dimensions["A"].width = 30
+        for row in writer.sheets[TITLE].iter_rows(min_row=4, min_col=2, max_col=4):
+            for cell in row:
+                if isinstance(cell.value, (int, float)):
+                    cell.number_format = "#,##0.00"
         for column in ["B", "C", "D", "E", "F", "G", "H", "I"]:
             writer.sheets[TITLE].column_dimensions[column].width = 15
     print("fertig")
