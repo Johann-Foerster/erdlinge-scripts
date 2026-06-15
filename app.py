@@ -50,15 +50,18 @@ def _run(fn, files, out_name, **kwargs):
 def _make_tab(label, description, fn, out_name, with_year=True, file_types=(".pdf",)):
     with gr.Tab(label):
         gr.Markdown(description)
-        files = gr.File(
-            label="Dateien hochladen",
-            file_count="multiple",
-            file_types=list(file_types),
-        )
-        year = gr.Textbox(value="2025", label="Jahr") if with_year else None
-        btn = gr.Button("Submit", variant="primary")
-        out_file = gr.File(label="Ergebnis (Excel)")
-        logs = gr.Textbox(label="Logs", lines=15)
+        with gr.Row():
+            with gr.Column():
+                files = gr.File(
+                    label="Dateien hochladen",
+                    file_count="multiple",
+                    file_types=list(file_types),
+                )
+                year = gr.Textbox(value="2025", label="Jahr") if with_year else None
+                btn = gr.Button("Submit", variant="primary")
+            with gr.Column():
+                out_file = gr.File(label="Ergebnis (Excel)")
+                logs = gr.Textbox(label="Logs", lines=15)
 
         if with_year:
             btn.click(
