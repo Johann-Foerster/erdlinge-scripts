@@ -227,5 +227,25 @@ def process(pdf_paths, year=YEAR, output_path=None):
 
 
 if __name__ == "__main__":
-    pdfs = glob.glob(f"abrechnungen/{YEAR}/*.pdf")
-    process(pdfs)
+    import argparse
+    ap = argparse.ArgumentParser(
+        description=(
+            "Verarbeitet Gehaltsabrechnungs-PDFs und schreibt mehrere Auswertungstabellen in eine Excel-Datei.\n\n"
+            "Erwartete Ordnerstruktur:\n"
+            "  abrechnungen/<YEAR>/*.pdf\n\n"
+            "Je PDF-Seite werden Arbeitsmarktzulage, Münchenzulage, Fahrtkostenzuschuss,\n"
+            "steuerfreie Bezüge, Wochenarbeitszeit und TVöD-Gehaltsgruppe extrahiert.\n"
+            "Seiten anderer Jahre (Rückrechnungen) werden übersprungen."
+        ),
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
+    ap.add_argument(
+        "--year", default=YEAR,
+        help=f"Abrechnungsjahr (Standard: {YEAR})",
+    )
+    args = ap.parse_args()
+    pdfs = glob.glob(f"abrechnungen/{args.year}/*.pdf")
+    if not pdfs:
+        print(f"Keine PDFs gefunden in: abrechnungen/{args.year}/")
+        exit(1)
+    process(pdfs, year=args.year)

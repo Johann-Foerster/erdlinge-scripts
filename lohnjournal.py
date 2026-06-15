@@ -125,5 +125,23 @@ def process(pdf_paths, year=YEAR, output_path=None):
 
 
 if __name__ == "__main__":
-    pdfs = glob.glob(f"lohnjournal/12.{YEAR}.pdf")
-    process(pdfs)
+    import argparse
+    ap = argparse.ArgumentParser(
+        description=(
+            "Verarbeitet das Lohnjournal-PDF (Dezember-Ausdruck) und schreibt das Ergebnis in eine Excel-Datei.\n\n"
+            "Erwartete Datei:\n"
+            "  lohnjournal/12.<YEAR>.pdf\n\n"
+            "Aus dem PDF werden Steuerbrutto, Gesamtbrutto und SV-AG-Anteil je Mitarbeiter extrahiert."
+        ),
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
+    ap.add_argument(
+        "--year", default=YEAR,
+        help=f"Abrechnungsjahr (Standard: {YEAR})",
+    )
+    args = ap.parse_args()
+    pdfs = glob.glob(f"lohnjournal/12.{args.year}.pdf")
+    if not pdfs:
+        print(f"Keine PDF gefunden: lohnjournal/12.{args.year}.pdf")
+        exit(1)
+    process(pdfs, year=args.year)

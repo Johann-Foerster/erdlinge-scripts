@@ -176,7 +176,30 @@ def process(input_paths, output_path=None):
 
 
 def main():
-    process(["kontoabgleich/Paypal_Konto.csv", "kontoabgleich/Paypal_Buchhaltung.xlsx"])
+    import argparse
+    ap = argparse.ArgumentParser(
+        description=(
+            "Gleicht PayPal-Kontobewegungen mit der Buchhaltungs-XLSX ab und markiert\n"
+            "übereinstimmende sowie fehlende Buchungen farbig in einer Ausgabe-Excel-Datei.\n\n"
+            "Benötigte Dateien (Standardpfade):\n"
+            "  kontoabgleich/Paypal_Konto.csv      – PayPal-Kontoauszug als CSV-Export\n"
+            "                                        (UTF-8 mit BOM, Semikolon-getrennt,\n"
+            "                                         Spalten: Datum, Brutto, Name, Hinweis, Typ)\n"
+            "  kontoabgleich/Paypal_Buchhaltung.xlsx – Buchhaltungs-Tabelle als XLSX\n\n"
+            "Alternativ können beide Dateipfade als Argumente übergeben werden."
+        ),
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
+    ap.add_argument(
+        "konto", nargs="?", default="kontoabgleich/Paypal_Konto.csv",
+        help="Pfad zur PayPal-Konto-CSV (Standard: kontoabgleich/Paypal_Konto.csv)",
+    )
+    ap.add_argument(
+        "buchhaltung", nargs="?", default="kontoabgleich/Paypal_Buchhaltung.xlsx",
+        help="Pfad zur Buchhaltungs-XLSX (Standard: kontoabgleich/Paypal_Buchhaltung.xlsx)",
+    )
+    args = ap.parse_args()
+    process([args.konto, args.buchhaltung])
 
 
 if __name__ == "__main__":

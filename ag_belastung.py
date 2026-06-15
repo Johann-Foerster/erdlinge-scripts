@@ -207,6 +207,29 @@ def process(pdf_paths, year=YEAR, mon=None, output_path=None):
 
 
 if __name__ == "__main__":
-    MON = "Oktober"
-    pdfs = glob.glob(f"ag_belastung/{YEAR}/{MON}.pdf")
-    process(pdfs, mon=MON)
+    import argparse
+    ap = argparse.ArgumentParser(
+        description=(
+            "Verarbeitet eine AG-Belastungs-PDF für einen einzelnen Monat und schreibt das Ergebnis in eine Excel-Datei.\n\n"
+            "Erwartete Datei:\n"
+            "  ag_belastung/<YEAR>/<MONTH>.pdf\n\n"
+            "Aus dem PDF werden Brutto, SV-AG-Anteil sowie U1-/U2-Erstattungen je Mitarbeiter\n"
+            "für den Monats- und den Gesamtzeitraum extrahiert.\n\n"
+            "Beispiel: python ag_belastung.py --month Oktober"
+        ),
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
+    ap.add_argument(
+        "--year", default=YEAR,
+        help=f"Abrechnungsjahr (Standard: {YEAR})",
+    )
+    ap.add_argument(
+        "--month", required=True,
+        help="Monatsname auf Deutsch, z.B. Oktober",
+    )
+    args = ap.parse_args()
+    pdfs = glob.glob(f"ag_belastung/{args.year}/{args.month}.pdf")
+    if not pdfs:
+        print(f"Keine PDF gefunden: ag_belastung/{args.year}/{args.month}.pdf")
+        exit(1)
+    process(pdfs, year=args.year, mon=args.month)

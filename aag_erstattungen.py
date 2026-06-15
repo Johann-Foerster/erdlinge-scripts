@@ -151,5 +151,24 @@ def process(pdf_paths, year=YEAR, output_path=None):
 
 
 if __name__ == "__main__":
-    pdfs = glob.glob(f"aag_erstattungen/{YEAR}/*.pdf")
-    process(pdfs)
+    import argparse
+    ap = argparse.ArgumentParser(
+        description=(
+            "Verarbeitet AAG-Erstattungs-PDFs (U1 und U2) und schreibt das Ergebnis in eine Excel-Datei.\n\n"
+            "Erwartete Ordnerstruktur:\n"
+            "  aag_erstattungen/<YEAR>/*.pdf\n\n"
+            "Jede PDF-Seite wird als U1 (Arbeitsunfähigkeit) oder U2 (Mutterschaft/Beschäftigungsverbot)\n"
+            "klassifiziert und der Erstattungsbetrag je Mitarbeiter summiert."
+        ),
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
+    ap.add_argument(
+        "--year", default=YEAR,
+        help=f"Abrechnungsjahr (Standard: {YEAR})",
+    )
+    args = ap.parse_args()
+    pdfs = glob.glob(f"aag_erstattungen/{args.year}/*.pdf")
+    if not pdfs:
+        print(f"Keine PDFs gefunden in: aag_erstattungen/{args.year}/")
+        exit(1)
+    process(pdfs, year=args.year)

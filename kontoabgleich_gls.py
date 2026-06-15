@@ -223,7 +223,31 @@ def process(input_paths, output_path=None):
 
 
 def main():
-    process(["kontoabgleich/GLS_Konto.csv", "kontoabgleich/GLS_Buchhaltung.xlsx"])
+    import argparse
+    ap = argparse.ArgumentParser(
+        description=(
+            "Gleicht GLS-Kontobewegungen mit der Buchhaltungs-XLSX ab und markiert\n"
+            "übereinstimmende sowie fehlende Buchungen farbig in einer Ausgabe-Excel-Datei.\n\n"
+            "Benötigte Dateien (Standardpfade):\n"
+            "  kontoabgleich/GLS_Konto.csv      – GLS-Kontoauszug als CSV-Export\n"
+            "                                     (UTF-8, Semikolon-getrennt,\n"
+            "                                      Spalten: Buchungstag, Valutadatum,\n"
+            "                                               Betrag, Verwendungszweck)\n"
+            "  kontoabgleich/GLS_Buchhaltung.xlsx – Buchhaltungs-Tabelle als XLSX\n\n"
+            "Alternativ können beide Dateipfade als Argumente übergeben werden."
+        ),
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
+    ap.add_argument(
+        "konto", nargs="?", default="kontoabgleich/GLS_Konto.csv",
+        help="Pfad zur GLS-Konto-CSV (Standard: kontoabgleich/GLS_Konto.csv)",
+    )
+    ap.add_argument(
+        "buchhaltung", nargs="?", default="kontoabgleich/GLS_Buchhaltung.xlsx",
+        help="Pfad zur Buchhaltungs-XLSX (Standard: kontoabgleich/GLS_Buchhaltung.xlsx)",
+    )
+    args = ap.parse_args()
+    process([args.konto, args.buchhaltung])
 
 
 if __name__ == "__main__":
