@@ -60,7 +60,7 @@ def _make_tab(label, description, fn, out_name, with_year=True, file_types=(".pd
                     file_count="single" if single_file else "multiple",
                     file_types=list(file_types),
                 )
-                year = gr.Textbox(value=str(datetime.date.today().year), label="Jahr") if with_year else None
+                year = gr.Dropdown(choices=[str(y) for y in range(2022, 2041)], value=str(datetime.date.today().year), label="Jahr") if with_year else None
                 btn = gr.Button("Ausführen", variant="primary")
             with gr.Column():
                 out_file = gr.File(label="Ergebnis (Excel)")
