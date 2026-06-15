@@ -50,6 +50,25 @@ Die Kernlogik der Auswertungen ist unverändert; sie wurde lediglich in eine
 `process()`-Funktion gekapselt, die sowohl von der CLI als auch von der Gradio-App
 aufgerufen wird. Ergebnisse werden durchgängig als Excel-Dateien ausgegeben.
 
+## Standalone-Programm (Win, Mac, Linux)
+
+Die Anwendung kann mit [PyInstaller](https://pyinstaller.org/) als eigenständige
+ausführbare Datei gebündelt werden. Das Bundle startet die Gradio-Oberfläche und
+öffnet automatisch den Browser – eine separate Python-Installation ist zur
+Nutzung nicht erforderlich.
+
+```bash
+pip install -r requirements-build.txt
+pyinstaller --noconfirm erdlinge.spec
+```
+
+Das Ergebnis liegt anschließend unter `dist/` (`erdlinge-auswertungen` bzw.
+`erdlinge-auswertungen.exe` unter Windows).
+
+Bei jedem Commit auf `main` erzeugt der GitHub-Actions-Workflow
+[`.github/workflows/build.yml`](.github/workflows/build.yml) automatisch die
+Bundles für Linux, Windows und macOS und stellt sie als Build-Artefakte bereit.
+
 ## Screenshots
 
 Übersicht mit allen Tabs:
