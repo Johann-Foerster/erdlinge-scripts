@@ -100,12 +100,14 @@ def build_app():
             "Genau ein PDF der AG-Belastung hochladen (Dateiname = Monat).",
             ag_belastung.process,
             "ag_belastung.xlsx",
+            with_year=False,
         )
         _make_tab(
             "Lohnjournal",
             "Genau ein PDF des Lohnjournals hochladen.",
             lohnjournal.process,
             "lohnjournal.xlsx",
+            with_year=False,
         )
         _make_tab(
             "Kontoabgleich GLS",
