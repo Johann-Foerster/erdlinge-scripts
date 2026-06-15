@@ -7,8 +7,6 @@ import numpy as np
 import glob, os, re
 
 YEAR = "2025"
-pdfs = glob.glob(f"abrechnungen/{YEAR}/*.pdf")
-data = []
 
 AMZ = "Arbeitsmarktzulage"
 MZ = "Münchenzulage"
@@ -148,78 +146,85 @@ class Page:
         )
 
 
-pages = []
-for pdf in pdfs:
-    print(f"Reading {pdf}...")
-    text_pages = get_pages(pdf)
-    for tpage in text_pages:
-        page_obj = Page(tpage)
-        if YEAR not in page_obj.month_year:
-            print(
-                f"Skipping page not for year {YEAR} (RR={page_obj.is_rueckrechnung}): {page_obj}"
-            )
-            continue
-        pages.append(page_obj)
-
-months = unique([page.month for page in pages])
-names = unique([page.name for page in pages])
-
-tables = [
-    {"name": "Arbeitsmarktzulage", "field": "arbeitsmarktzulage"},
-    {"name": "Münchenzulage", "field": "muenchenzulage"},
-    {"name": "Fahrtkostenzuschuss", "field": "fahrtkostenzuschuss"},
-    {
-        "name": "Steuerfrei (inkl. FKZ)",
-        "field": "steuerfrei_inkl_fahrtkostenzuschuss",
-    },
-    {"name": "Wochenarbeitszeit", "field": "wochenarbeitszeit"},
-    {"name": "Gehaltsgruppe-Stufe", "field": "gruppe_stufe"},
-]
-print(
-    f"\nCreating tables {[table['name'] for table in tables]} for months {months} and employees {names}"
-)
-
-data = {}
-for name in names:
-    employee_pages = [page for page in pages if page.name in name]
-    for page in employee_pages:
-        if page.month not in data:
-            data[page.month] = {}
-        if name not in data[page.month]:
-            data[page.month][page.name] = {}
-        for table in tables:
-            datapoint = getattr(page, table["field"])
-            if table["name"] in data[page.month][page.name]:
-                old_datapoint = data[page.month][page.name][table["name"]]
-                if old_datapoint != datapoint:
-                    print(
-                        f"Changed {table['name']} for {page.name}, month {page.month}, old={old_datapoint}, new={datapoint}, RR={page.is_rueckrechnung} page={page}"
-                    )
-            data[page.month][page.name][table["name"]] = datapoint
-
-OUT_FILENAME = f"abrechnungen_{YEAR}.xlsx"
-print(f"\nCreating {OUT_FILENAME}")
-if os.path.exists(OUT_FILENAME):
-    os.remove(OUT_FILENAME)
-
-with ExcelWriter(OUT_FILENAME, engine="openpyxl", mode="w") as writer:
-    for table in tables:
-        df = DataFrame()
-        for month in months:
-            for employee in names:
-                df.loc[employee, month] = (
-                    data[month][employee][table["name"]]
-                    if employee in data[month]
-                    else 0
+def process(pdf_paths, year=YEAR, output_path=None):
+    pages = []
+    for pdf in pdf_paths:
+        print(f"Reading {pdf}...")
+        text_pages = get_pages(pdf)
+        for tpage in text_pages:
+            page_obj = Page(tpage)
+            if year not in page_obj.month_year:
+                print(
+                    f"Skipping page not for year {year} (RR={page_obj.is_rueckrechnung}): {page_obj}"
                 )
-        if np.issubdtype(df.dtypes.values[0], np.number):
-            df["Summe"] = df.sum(axis=1)
-        title_df = DataFrame([{"Daten": table["name"]}])
-        title_df.to_excel(
-            writer, sheet_name=table["name"], index=False, header=False, startrow=0
-        )
-        df.to_excel(
-            writer, sheet_name=table["name"], index=True, header=True, startrow=2
-        )
-        writer.sheets[table["name"]].column_dimensions["A"].width = 30
-print("done")
+                continue
+            pages.append(page_obj)
+
+    months = unique([page.month for page in pages])
+    names = unique([page.name for page in pages])
+
+    tables = [
+        {"name": "Arbeitsmarktzulage", "field": "arbeitsmarktzulage"},
+        {"name": "Münchenzulage", "field": "muenchenzulage"},
+        {"name": "Fahrtkostenzuschuss", "field": "fahrtkostenzuschuss"},
+        {
+            "name": "Steuerfrei (inkl. FKZ)",
+            "field": "steuerfrei_inkl_fahrtkostenzuschuss",
+        },
+        {"name": "Wochenarbeitszeit", "field": "wochenarbeitszeit"},
+        {"name": "Gehaltsgruppe-Stufe", "field": "gruppe_stufe"},
+    ]
+    print(
+        f"\nCreating tables {[table['name'] for table in tables]} for months {months} and employees {names}"
+    )
+
+    data = {}
+    for name in names:
+        employee_pages = [page for page in pages if page.name in name]
+        for page in employee_pages:
+            if page.month not in data:
+                data[page.month] = {}
+            if name not in data[page.month]:
+                data[page.month][page.name] = {}
+            for table in tables:
+                datapoint = getattr(page, table["field"])
+                if table["name"] in data[page.month][page.name]:
+                    old_datapoint = data[page.month][page.name][table["name"]]
+                    if old_datapoint != datapoint:
+                        print(
+                            f"Changed {table['name']} for {page.name}, month {page.month}, old={old_datapoint}, new={datapoint}, RR={page.is_rueckrechnung} page={page}"
+                        )
+                data[page.month][page.name][table["name"]] = datapoint
+
+    OUT_FILENAME = output_path or f"abrechnungen_{year}.xlsx"
+    print(f"\nCreating {OUT_FILENAME}")
+    if os.path.exists(OUT_FILENAME):
+        os.remove(OUT_FILENAME)
+
+    with ExcelWriter(OUT_FILENAME, engine="openpyxl", mode="w") as writer:
+        for table in tables:
+            df = DataFrame()
+            for month in months:
+                for employee in names:
+                    df.loc[employee, month] = (
+                        data[month][employee][table["name"]]
+                        if employee in data[month]
+                        else 0
+                    )
+            if np.issubdtype(df.dtypes.values[0], np.number):
+                df["Summe"] = df.sum(axis=1)
+            title_df = DataFrame([{"Daten": table["name"]}])
+            title_df.to_excel(
+                writer, sheet_name=table["name"], index=False, header=False, startrow=0
+            )
+            df.to_excel(
+                writer, sheet_name=table["name"], index=True, header=True, startrow=2
+            )
+            writer.sheets[table["name"]].column_dimensions["A"].width = 30
+    print("done")
+    return OUT_FILENAME
+
+
+if __name__ == "__main__":
+    pdfs = glob.glob(f"abrechnungen/{YEAR}/*.pdf")
+    process(pdfs)

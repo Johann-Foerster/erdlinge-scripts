@@ -194,9 +194,17 @@ def schreibe_ergebnis(pfad, nur_gls, nur_bh, uebereinstimmend):
     wb.save(pfad)
 
 
-def main():
-    gls_buchungen = lese_gls_konto("kontoabgleich/GLS_Konto.csv")
-    bh_buchungen = lese_gls_buchhaltung("kontoabgleich/GLS_Buchhaltung.xlsx")
+def process(input_paths, output_path=None):
+    """Verarbeitet hochgeladene Dateien (eine GLS_Konto CSV + eine Buchhaltung XLSX)."""
+    konto = [p for p in input_paths if p.lower().endswith(".csv")]
+    buchhaltung = [p for p in input_paths if p.lower().endswith((".xlsx", ".xls"))]
+    if len(konto) != 1 or len(buchhaltung) != 1:
+        raise OSError(
+            "Bitte genau eine GLS-Konto-CSV und eine GLS-Buchhaltungs-XLSX hochladen"
+        )
+
+    gls_buchungen = lese_gls_konto(konto[0])
+    bh_buchungen = lese_gls_buchhaltung(buchhaltung[0])
 
     print(f"GLS Konto: {len(gls_buchungen)} Buchungen")
     print(f"Buchhaltung: {len(bh_buchungen)} Buchungen")
@@ -208,8 +216,14 @@ def main():
     print(f"  Nur GLS:          {len(nur_gls)}")
     print(f"  Nur Buchhaltung:  {len(nur_bh)}")
 
-    schreibe_ergebnis("kontoabgleich_gls.xlsx", nur_gls, nur_bh, uebereinstimmend)
-    print("\nDatei geschrieben: kontoabgleich_gls.xlsx")
+    out = output_path or "kontoabgleich_gls.xlsx"
+    schreibe_ergebnis(out, nur_gls, nur_bh, uebereinstimmend)
+    print(f"\nDatei geschrieben: {out}")
+    return out
+
+
+def main():
+    process(["kontoabgleich/GLS_Konto.csv", "kontoabgleich/GLS_Buchhaltung.xlsx"])
 
 
 if __name__ == "__main__":

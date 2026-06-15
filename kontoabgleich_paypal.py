@@ -147,9 +147,17 @@ def schreibe_ergebnis(pfad, nur_pp, nur_bh, uebereinstimmend):
     wb.save(pfad)
 
 
-def main():
-    pp_buchungen = lese_paypal_konto("kontoabgleich/Paypal_Konto.csv")
-    bh_buchungen = lese_paypal_buchhaltung("kontoabgleich/Paypal_Buchhaltung.xlsx")
+def process(input_paths, output_path=None):
+    """Verarbeitet hochgeladene Dateien (eine Paypal_Konto CSV + eine Buchhaltung XLSX)."""
+    konto = [p for p in input_paths if p.lower().endswith(".csv")]
+    buchhaltung = [p for p in input_paths if p.lower().endswith((".xlsx", ".xls"))]
+    if len(konto) != 1 or len(buchhaltung) != 1:
+        raise OSError(
+            "Bitte genau eine PayPal-Konto-CSV und eine PayPal-Buchhaltungs-XLSX hochladen"
+        )
+
+    pp_buchungen = lese_paypal_konto(konto[0])
+    bh_buchungen = lese_paypal_buchhaltung(buchhaltung[0])
 
     print(f"PayPal Konto: {len(pp_buchungen)} Buchungen")
     print(f"Buchhaltung:  {len(bh_buchungen)} Buchungen")
@@ -161,8 +169,14 @@ def main():
     print(f"  Nur PayPal:       {len(nur_pp)}")
     print(f"  Nur Buchhaltung:  {len(nur_bh)}")
 
-    schreibe_ergebnis("kontoabgleich_paypal.xlsx", nur_pp, nur_bh, uebereinstimmend)
-    print("\nDatei geschrieben: kontoabgleich_paypal.xlsx")
+    out = output_path or "kontoabgleich_paypal.xlsx"
+    schreibe_ergebnis(out, nur_pp, nur_bh, uebereinstimmend)
+    print(f"\nDatei geschrieben: {out}")
+    return out
+
+
+def main():
+    process(["kontoabgleich/Paypal_Konto.csv", "kontoabgleich/Paypal_Buchhaltung.xlsx"])
 
 
 if __name__ == "__main__":
