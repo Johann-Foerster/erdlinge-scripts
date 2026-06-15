@@ -1,9 +1,10 @@
 from pandas.core.arrays import boolean
 from tika import parser
 from pandas import DataFrame, ExcelWriter
+import datetime
 import glob, re, os
 
-YEAR = "2025"
+YEAR = str(datetime.date.today().year)
 
 
 HEADER_END = "Pers.Nr. Einheiten"

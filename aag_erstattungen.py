@@ -1,8 +1,9 @@
 from tika import parser
 from openpyxl import Workbook
+import datetime
 import glob, os
 
-YEAR = "2025"
+YEAR = str(datetime.date.today().year)
 ROW_SUM = "Summe"
 
 

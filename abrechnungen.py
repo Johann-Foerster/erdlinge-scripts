@@ -3,10 +3,11 @@ from tika import parser
 from dataclasses import dataclass, field
 from collections import OrderedDict
 from pandas import DataFrame, ExcelWriter
+import datetime
 import numpy as np
 import glob, os, re
 
-YEAR = "2025"
+YEAR = str(datetime.date.today().year)
 
 AMZ = "Arbeitsmarktzulage"
 MZ = "Münchenzulage"
