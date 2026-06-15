@@ -90,7 +90,7 @@ class Page:
         )
 
         WAZ_HEAD_IDX = self._lines.index(self.line_with(WAZ))
-        WAZ_LINE = self._lines[WAZ_HEAD_IDX + 3]
+        WAZ_LINE = self._lines[WAZ_HEAD_IDX + 1]
         WAZ_MATCH = re.search(
             r"(\d+,\d+)(?= \d+,\d+)", " ".join(WAZ_LINE.split(" ")[1:])
         )
