@@ -69,13 +69,3 @@ Bei jedem Commit auf `main` erzeugt der GitHub-Actions-Workflow
 [`.github/workflows/build.yml`](.github/workflows/build.yml) automatisch die
 Bundles für Linux, Windows und macOS und stellt sie sowohl als
 Build-Artefakte als auch als Assets unter GitHubs **Releases** bereit.
-
-## Screenshots
-
-Übersicht mit allen Tabs:
-
-![Übersicht](docs/screenshots/app_overview.png)
-
-Beispiel-Lauf des Tabs "Kontoabgleich GLS" (Datei-Upload, Ergebnis-Excel und Logs):
-
-![Kontoabgleich GLS](docs/screenshots/app_kontoabgleich_gls.png)
