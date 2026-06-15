@@ -68,7 +68,7 @@ def _make_tab(label, description, fn, out_name, with_year=True, file_types=(".pd
 
         if with_year:
             btn.click(
-                lambda f, y: _run(fn, f, out_name, year=y),
+                lambda f, y: _run(fn, f, out_name.replace(".xlsx", f"_{y}.xlsx"), year=y),
                 inputs=[files, year],
                 outputs=[out_file, logs],
             )
