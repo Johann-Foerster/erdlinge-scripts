@@ -10,9 +10,6 @@ Jedes Skript kann weiterhin direkt über die Kommandozeile genutzt werden **oder
 pip install -r requirements.txt
 ```
 
-Für die PDF-Skripte wird zusätzlich eine Java-Laufzeitumgebung benötigt
-(wird von [`tika`](https://pypi.org/project/tika/) für den Apache-Tika-Server verwendet).
-
 ## Gradio-App
 
 ```bash
@@ -55,7 +52,7 @@ aufgerufen wird. Ergebnisse werden durchgängig als Excel-Dateien ausgegeben.
 Die Anwendung kann mit [PyInstaller](https://pyinstaller.org/) als eigenständige
 ausführbare Datei gebündelt werden. Das Bundle startet die Gradio-Oberfläche und
 öffnet automatisch den Browser – eine separate Python-Installation ist zur
-Nutzung nicht erforderlich. Für die PDF-Auswertungen wird weiterhin eine Java-Laufzeitumgebung benötigt (siehe oben).
+Nutzung nicht erforderlich.
 
 ```bash
 pip install -r requirements-build.txt

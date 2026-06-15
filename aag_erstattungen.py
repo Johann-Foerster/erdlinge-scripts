@@ -1,4 +1,4 @@
-from tika import parser
+from pypdf import PdfReader
 from openpyxl import Workbook
 import datetime
 import glob, os
@@ -8,22 +8,8 @@ ROW_SUM = "Summe"
 
 
 def get_pages(filename):
-    raw_xml = parser.from_file(filename, xmlContent=True)
-    body = raw_xml["content"].split("<body>")[1].split("</body>")[0]
-    body_without_tag = (
-        body.replace("<p>", "")
-        .replace("</p>", "")
-        .replace("<div>", "")
-        .replace("</div>", "")
-        .replace("<p />", "")
-    )
-    text_pages = body_without_tag.split("""<div class="page">""")[1:]
-    num_pages = len(text_pages)
-    if not num_pages == int(
-        raw_xml["metadata"]["xmpTPg:NPages"]
-    ):  # check if it worked correctly
-        raise RuntimeError("FEHLER beim Abgleich der Seitenanzahl")
-    return text_pages
+    reader = PdfReader(filename)
+    return [page.extract_text() or "" for page in reader.pages]
 
 
 def find_index(data, element):
@@ -49,14 +35,14 @@ def process(pdf_paths, year=YEAR, output_path=None):
 
             vorname = " ".join(
                 [
-                    lines[idx + 2]
+                    lines[idx + 1]
                     for idx, line in enumerate(lines)
                     if "Vorname Rentenversicherungsnummer" in line
                 ][0].split(" ")[:-1]
             )
             nachname = " ".join(
                 [
-                    lines[idx + 2]
+                    lines[idx + 1]
                     for idx, line in enumerate(lines)
                     if "Name Pers.Nr." in line
                 ][0].split(" ")[:-1]
