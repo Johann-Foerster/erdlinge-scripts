@@ -67,7 +67,8 @@ Das Ergebnis liegt anschließend unter `dist/` (`erdlinge-auswertungen` bzw.
 
 Bei jedem Commit auf `main` erzeugt der GitHub-Actions-Workflow
 [`.github/workflows/build.yml`](.github/workflows/build.yml) automatisch die
-Bundles für Linux, Windows und macOS und stellt sie als Build-Artefakte bereit.
+Bundles für Linux, Windows und macOS und stellt sie sowohl als
+Build-Artefakte als auch als Assets unter GitHubs **Releases** bereit.
 
 ## Screenshots
 
@@ -78,4 +79,3 @@ Bundles für Linux, Windows und macOS und stellt sie als Build-Artefakte bereit.
 Beispiel-Lauf des Tabs "Kontoabgleich GLS" (Datei-Upload, Ergebnis-Excel und Logs):
 
 ![Kontoabgleich GLS](docs/screenshots/app_kontoabgleich_gls.png)
-

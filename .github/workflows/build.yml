@@ -46,3 +46,39 @@ jobs:
           name: ${{ matrix.artifact }}
           path: dist/*
           if-no-files-found: error
+
+  release:
+    name: Publish release assets
+    if: github.ref == 'refs/heads/main'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: release-assets
+
+      - name: Prepare release assets
+        run: |
+          mv release-assets/erdlinge-auswertungen-linux/erdlinge-auswertungen \
+            release-assets/erdlinge-auswertungen-linux/erdlinge-auswertungen-linux
+          mv release-assets/erdlinge-auswertungen-windows/erdlinge-auswertungen.exe \
+            release-assets/erdlinge-auswertungen-windows/erdlinge-auswertungen-windows.exe
+          mv release-assets/erdlinge-auswertungen-macos/erdlinge-auswertungen \
+            release-assets/erdlinge-auswertungen-macos/erdlinge-auswertungen-macos
+
+      - name: Publish release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: bundles-${{ github.sha }}
+          name: Standalone bundles for ${{ github.sha }}
+          prerelease: true
+          target_commitish: ${{ github.sha }}
+          overwrite_files: true
+          files: |
+            release-assets/erdlinge-auswertungen-linux/*
+            release-assets/erdlinge-auswertungen-windows/*
+            release-assets/erdlinge-auswertungen-macos/*
