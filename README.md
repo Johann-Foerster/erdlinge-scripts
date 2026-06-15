@@ -49,14 +49,3 @@ python kontoabgleich_paypal.py
 Die Kernlogik der Auswertungen ist unverändert; sie wurde lediglich in eine
 `process()`-Funktion gekapselt, die sowohl von der CLI als auch von der Gradio-App
 aufgerufen wird. Ergebnisse werden durchgängig als Excel-Dateien ausgegeben.
-
-## Screenshots
-
-Übersicht mit allen Tabs:
-
-![Übersicht](docs/screenshots/app_overview.png)
-
-Beispiel-Lauf des Tabs "Kontoabgleich GLS" (Datei-Upload, Ergebnis-Excel und Logs):
-
-![Kontoabgleich GLS](docs/screenshots/app_kontoabgleich_gls.png)
-
