@@ -2,7 +2,7 @@ name: Build standalone bundles
 
 on:
   push:
-    branches: [main, copilot/build-standalone-app]
+    branches: [main]
   workflow_dispatch:
 
 permissions:
