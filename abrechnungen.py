@@ -190,7 +190,7 @@ def process(pdf_paths, year=YEAR, output_path=None):
 
     data = {}
     for name in names:
-        employee_pages = [page for page in pages if page.name in name]
+        employee_pages = [page for page in pages if page.name == name]
         for page in employee_pages:
             if page.month not in data:
                 data[page.month] = {}
