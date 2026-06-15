@@ -81,8 +81,8 @@ def _make_tab(label, description, fn, out_name, with_year=True, file_types=(".pd
 
 
 def build_app():
-    with gr.Blocks(title="Erdlinge Auswertungen", theme=gr.themes.Default(primary_hue=gr.themes.colors.green)) as demo:
-        gr.Markdown("# Erdlinge Auswertungen\nLade die Dokumente hoch und klicke auf **Ausführen**.")
+    with gr.Blocks(title="Erdlinge Skripte", theme=gr.themes.Default(primary_hue=gr.themes.colors.green)) as demo:
+        gr.Markdown("# Erdlinge Skripte\nLade die Dokumente hoch und klicke auf **Ausführen**.")
 
         _make_tab(
             "AAG Erstattungen",

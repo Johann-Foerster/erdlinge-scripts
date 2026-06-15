@@ -1,4 +1,4 @@
-# Erdlinge Auswertungen
+# Erdlinge Skripte
 
 Sammlung von Auswertungsskripten für wiederkehrende Buchhaltungs-/Lohn-Aufgaben.
 Jedes Skript kann weiterhin direkt über die Kommandozeile genutzt werden **oder**
@@ -62,8 +62,8 @@ pip install -r requirements-build.txt
 pyinstaller --noconfirm erdlinge.spec
 ```
 
-Das Ergebnis liegt anschließend unter `dist/` (`erdlinge-auswertungen` bzw.
-`erdlinge-auswertungen.exe` unter Windows).
+Das Ergebnis liegt anschließend unter `dist/` (`erdlinge-skripte` bzw.
+`erdlinge-skripte.exe` unter Windows).
 
 Bei jedem Commit auf `main` erzeugt der GitHub-Actions-Workflow
 [`.github/workflows/build.yml`](.github/workflows/build.yml) automatisch die
