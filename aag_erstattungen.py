@@ -74,9 +74,9 @@ def process(pdf_paths, year=YEAR, output_path=None):
                 )
             )
             if type == "TYPE ERROR":
-                print("FEHLER beim Bestimmen des Seitentyps (U1/U2):")
-                print(page)
-
+                raise OSError(
+                    f"Konnte Seitentyp (U1/U2) nicht bestimmen (Datei: {pdf}). Bitte PDF prüfen."
+                )
             value = ""
             if "Mutterschaft - U2" in page:
                 value = [line for line in lines if " im Monat " in line][0].split(
