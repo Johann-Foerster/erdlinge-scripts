@@ -194,7 +194,7 @@ def process(pdf_paths, year=YEAR, output_path=None):
         for page in employee_pages:
             if page.month not in data:
                 data[page.month] = {}
-            if name not in data[page.month]:
+            if page.name not in data[page.month]:
                 data[page.month][page.name] = {}
             for table in tables:
                 datapoint = getattr(page, table["field"])
