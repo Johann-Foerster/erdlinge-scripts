@@ -35,14 +35,14 @@ def process(pdf_paths, year=YEAR, output_path=None):
 
             vorname = " ".join(
                 [
-                    lines[idx + 2]
+                    lines[idx + 1]
                     for idx, line in enumerate(lines)
                     if "Vorname Rentenversicherungsnummer" in line
                 ][0].split(" ")[:-1]
             )
             nachname = " ".join(
                 [
-                    lines[idx + 2]
+                    lines[idx + 1]
                     for idx, line in enumerate(lines)
                     if "Name Pers.Nr." in line
                 ][0].split(" ")[:-1]
