@@ -1,4 +1,4 @@
-# Erdlinge Auswertungen
+# Erdlinge Skripte
 
 Sammlung von Auswertungsskripten für wiederkehrende Buchhaltungs-/Lohn-Aufgaben.
 Jedes Skript kann weiterhin direkt über die Kommandozeile genutzt werden **oder**
@@ -49,3 +49,23 @@ python kontoabgleich_paypal.py
 Die Kernlogik der Auswertungen ist unverändert; sie wurde lediglich in eine
 `process()`-Funktion gekapselt, die sowohl von der CLI als auch von der Gradio-App
 aufgerufen wird. Ergebnisse werden durchgängig als Excel-Dateien ausgegeben.
+
+## Standalone-Programm (Win, Mac, Linux)
+
+Die Anwendung kann mit [PyInstaller](https://pyinstaller.org/) als eigenständige
+ausführbare Datei gebündelt werden. Das Bundle startet die Gradio-Oberfläche und
+öffnet automatisch den Browser – eine separate Python-Installation ist zur
+Nutzung nicht erforderlich. Für die PDF-Auswertungen wird weiterhin eine Java-Laufzeitumgebung benötigt (siehe oben).
+
+```bash
+pip install -r requirements-build.txt
+pyinstaller --noconfirm erdlinge.spec
+```
+
+Das Ergebnis liegt anschließend unter `dist/` (`erdlinge-skripte` bzw.
+`erdlinge-skripte.exe` unter Windows).
+
+Bei jedem Commit auf `main` erzeugt der GitHub-Actions-Workflow
+[`.github/workflows/build.yml`](.github/workflows/build.yml) automatisch die
+Bundles für Linux, Windows und macOS und stellt sie sowohl als
+Build-Artefakte als auch als Assets unter GitHubs **Releases** bereit.

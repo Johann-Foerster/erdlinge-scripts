@@ -1,0 +1,84 @@
+name: Build standalone bundles
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            artifact: erdlinge-skripte-linux
+          - os: windows-latest
+            artifact: erdlinge-skripte-windows
+          - os: macos-latest
+            artifact: erdlinge-skripte-macos
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-build.txt
+
+      - name: Build bundle
+        run: pyinstaller --noconfirm erdlinge.spec
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}
+          path: dist/*
+          if-no-files-found: error
+
+  release:
+    name: Publish release assets
+    if: github.ref == 'refs/heads/main'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: release-assets
+
+      - name: Prepare release assets
+        run: |
+          mv release-assets/erdlinge-skripte-linux/erdlinge-skripte \
+            release-assets/erdlinge-skripte-linux/erdlinge-skripte-linux
+          mv release-assets/erdlinge-skripte-windows/erdlinge-skripte.exe \
+            release-assets/erdlinge-skripte-windows/erdlinge-skripte-windows.exe
+          mv release-assets/erdlinge-skripte-macos/erdlinge-skripte \
+            release-assets/erdlinge-skripte-macos/erdlinge-skripte-macos
+
+      - name: Publish release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: bundles-${{ github.sha }}
+          name: Standalone bundles for ${{ github.sha }}
+          prerelease: true
+          target_commitish: ${{ github.sha }}
+          overwrite_files: true
+          files: |
+            release-assets/erdlinge-skripte-linux/*
+            release-assets/erdlinge-skripte-windows/*
+            release-assets/erdlinge-skripte-macos/*
