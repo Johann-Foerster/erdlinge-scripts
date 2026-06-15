@@ -1,5 +1,6 @@
 from pypdf import PdfReader
 from openpyxl import Workbook
+from pathlib import Path
 import datetime
 import glob, os
 
@@ -77,7 +78,7 @@ def process(pdf_paths, year=YEAR, output_path=None):
 
             if "X Stornierung" in page:
                 value_eur = -value_eur
-            title = pdf.split("/")[-1].replace(".pdf", "")
+            title = Path(pdf).stem
 
             if type == "U1":
                 if name not in erstattungen_u1:
@@ -106,7 +107,7 @@ def process(pdf_paths, year=YEAR, output_path=None):
     for name in erstattungen_u2.keys():
         erstattungen_u2[name][ROW_SUM] = sum(erstattungen_u2[name].values())
 
-    titles = [x.split("/")[-1].replace(".pdf", "") for x in pdf_paths]
+    titles = [Path(x).stem for x in pdf_paths]
     outfile = output_path or f"AAG_Erstattungen_{year}.xlsx"
     print(f"\nSchreibe Excel-Datei: {outfile}")
 
