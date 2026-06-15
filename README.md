@@ -23,7 +23,7 @@ einem Datei-Upload, einem **Submit**-Button sowie der Ausgabe der Ergebnisdatei
 | Tab | Eingabe | Ergebnis |
 | --- | --- | --- |
 | AAG Erstattungen | PDF(s) | `AAG_Erstattungen.xlsx` |
-| Abrechnungen | PDF(s) | `abrechnungen.xlsx` |
+| Abrechnungen | PDF(s) | `abrechnungen_{jahr}.xlsx` |
 | AG Belastung | ein PDF (Dateiname = Monat) | `ag_belastung.xlsx` |
 | Lohnjournal | ein PDF | `lohnjournal.xlsx` |
 | Kontoabgleich GLS | GLS-Konto-CSV + GLS-Buchhaltungs-XLSX | `kontoabgleich_gls.xlsx` |
