@@ -27,6 +27,8 @@ def _paths(files):
     """Normalisiert die von Gradio gelieferten Datei-Referenzen zu Pfaden."""
     if not files:
         return []
+    if not isinstance(files, list):
+        files = [files]
     return [f if isinstance(f, str) else f.name for f in files]
 
 
@@ -48,14 +50,14 @@ def _run(fn, files, out_name, **kwargs):
         return None, buf.getvalue()
 
 
-def _make_tab(label, description, fn, out_name, with_year=True, file_types=(".pdf",)):
+def _make_tab(label, description, fn, out_name, with_year=True, file_types=(".pdf",), single_file=False):
     with gr.Tab(label):
         gr.Markdown(description)
         with gr.Row():
             with gr.Column():
                 files = gr.File(
-                    label="Dateien hochladen",
-                    file_count="multiple",
+                    label="Datei hochladen" if single_file else "Dateien hochladen",
+                    file_count="single" if single_file else "multiple",
                     file_types=list(file_types),
                 )
                 year = gr.Textbox(value=str(datetime.date.today().year), label="Jahr") if with_year else None
@@ -101,6 +103,7 @@ def build_app():
             ag_belastung.process,
             "ag_belastung.xlsx",
             with_year=False,
+            single_file=True,
         )
         _make_tab(
             "Lohnjournal",
@@ -108,6 +111,7 @@ def build_app():
             lohnjournal.process,
             "lohnjournal.xlsx",
             with_year=False,
+            single_file=True,
         )
         _make_tab(
             "Kontoabgleich GLS",
