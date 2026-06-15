@@ -92,7 +92,7 @@ def build_app():
             with_year=False,
         )
         _make_tab(
-            "Abrechnungen",
+            "Verdienstabrechnungen",
             "PDF(s) der Gehaltsabrechnungen hochladen.",
             abrechnungen.process,
             "abrechnungen.xlsx",
