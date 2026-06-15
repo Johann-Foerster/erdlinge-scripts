@@ -156,12 +156,15 @@ def process(input_paths, output_path=None):
             "Bitte genau eine PayPal-Konto-CSV und eine PayPal-Buchhaltungs-XLSX hochladen"
         )
 
+    print(f"Lese PayPal-Konto-CSV: {konto[0]}")
     pp_buchungen = lese_paypal_konto(konto[0])
+    print(f"Lese Buchhaltungs-XLSX: {buchhaltung[0]}")
     bh_buchungen = lese_paypal_buchhaltung(buchhaltung[0])
 
     print(f"PayPal Konto: {len(pp_buchungen)} Buchungen")
     print(f"Buchhaltung:  {len(bh_buchungen)} Buchungen")
 
+    print("\nGleiche Buchungen ab...")
     nur_pp, nur_bh, uebereinstimmend = abgleich(pp_buchungen, bh_buchungen)
 
     print(f"\nErgebnis:")
@@ -170,8 +173,9 @@ def process(input_paths, output_path=None):
     print(f"  Nur Buchhaltung:  {len(nur_bh)}")
 
     out = output_path or "kontoabgleich_paypal.xlsx"
+    print(f"\nSchreibe Ergebnis...")
     schreibe_ergebnis(out, nur_pp, nur_bh, uebereinstimmend)
-    print(f"\nDatei geschrieben: {out}")
+    print(f"Datei geschrieben: {out}")
     return out
 
 

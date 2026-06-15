@@ -35,7 +35,7 @@ def get_pages(filename):
     if not num_pages == int(
         raw_xml["metadata"]["xmpTPg:NPages"]
     ):  # check if it worked correctly
-        print("ERROR in page number crosscheck")
+        print("FEHLER beim Abgleich der Seitenanzahl")
         exit(1)
     return text_pages
 
@@ -126,7 +126,7 @@ class Page:
                 or int(fehlzeit_start.split(".")[1]) < self.month
             ):
                 print(
-                    f"For {self.name} {MUTF} started {fehlzeit_start} so in month {self.month} there is no unversteuert {EUW}"
+                    f"Für {self.name} begann {MUTF} am {fehlzeit_start}, daher gibt es im Monat {self.month} keine unversteuerte {EUW}"
                 )
                 steuerfrei_entgeltumw = 0
 
@@ -149,14 +149,16 @@ class Page:
 
 def process(pdf_paths, year=YEAR, output_path=None):
     pages = []
+    print(f"Starte Verarbeitung von {len(pdf_paths)} PDF-Datei(en)...")
     for pdf in pdf_paths:
-        print(f"Reading {pdf}...")
+        print(f"Lese {pdf}...")
         text_pages = get_pages(pdf)
+        print(f"  {len(text_pages)} Seite(n) gefunden, werte aus...")
         for tpage in text_pages:
             page_obj = Page(tpage)
             if year not in page_obj.month_year:
                 print(
-                    f"Skipping page not for year {year} (RR={page_obj.is_rueckrechnung}): {page_obj}"
+                    f"Überspringe Seite, die nicht zum Jahr {year} gehört (RR={page_obj.is_rueckrechnung}): {page_obj}"
                 )
                 continue
             pages.append(page_obj)
@@ -176,7 +178,7 @@ def process(pdf_paths, year=YEAR, output_path=None):
         {"name": "Gehaltsgruppe-Stufe", "field": "gruppe_stufe"},
     ]
     print(
-        f"\nCreating tables {[table['name'] for table in tables]} for months {months} and employees {names}"
+        f"\nErstelle Tabellen {[table['name'] for table in tables]} für Monate {months} und Mitarbeiter {names}"
     )
 
     data = {}
@@ -193,17 +195,18 @@ def process(pdf_paths, year=YEAR, output_path=None):
                     old_datapoint = data[page.month][page.name][table["name"]]
                     if old_datapoint != datapoint:
                         print(
-                            f"Changed {table['name']} for {page.name}, month {page.month}, old={old_datapoint}, new={datapoint}, RR={page.is_rueckrechnung} page={page}"
+                            f"Geänderter Wert {table['name']} für {page.name}, Monat {page.month}, alt={old_datapoint}, neu={datapoint}, RR={page.is_rueckrechnung} page={page}"
                         )
                 data[page.month][page.name][table["name"]] = datapoint
 
     OUT_FILENAME = output_path or f"abrechnungen_{year}.xlsx"
-    print(f"\nCreating {OUT_FILENAME}")
+    print(f"\nErstelle {OUT_FILENAME}")
     if os.path.exists(OUT_FILENAME):
         os.remove(OUT_FILENAME)
 
     with ExcelWriter(OUT_FILENAME, engine="openpyxl", mode="w") as writer:
         for table in tables:
+            print(f"  Schreibe Tabellenblatt: {table['name']}")
             df = DataFrame()
             for month in months:
                 for employee in names:
@@ -222,7 +225,7 @@ def process(pdf_paths, year=YEAR, output_path=None):
                 writer, sheet_name=table["name"], index=True, header=True, startrow=2
             )
             writer.sheets[table["name"]].column_dimensions["A"].width = 30
-    print("done")
+    print("fertig")
     return OUT_FILENAME
 
 
@@ -248,4 +251,5 @@ if __name__ == "__main__":
     if not pdfs:
         print(f"Keine PDFs gefunden in: abrechnungen/{args.year}/")
         exit(1)
+    print(f"{len(pdfs)} PDF(s) gefunden in: abrechnungen/{args.year}/")
     process(pdfs, year=args.year)

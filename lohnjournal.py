@@ -26,7 +26,7 @@ def get_pages(filename):
     if not num_pages == int(
         raw_xml["metadata"]["xmpTPg:NPages"]
     ):  # check if it worked correctly
-        print("ERROR in page number crosscheck")
+        print("FEHLER beim Abgleich der Seitenanzahl")
         exit(1)
     return text_pages
 
@@ -53,7 +53,9 @@ def process(pdf_paths, year=YEAR, output_path=None):
     if len(pdf_paths) != 1:
         raise OSError("expected one pdf")
 
+    print(f"Lese PDF: {pdf_paths[0]}")
     pages = get_pages(pdf_paths[0])
+    print(f"  {len(pages)} Seite(n) gefunden, extrahiere Zeilen...")
 
     lines = []
     for page in pages:
@@ -64,7 +66,7 @@ def process(pdf_paths, year=YEAR, output_path=None):
             [line for line in pLines[index_start + 1 : index_end] if line.strip() != ""]
         )
     
-    print("Start processing")
+    print(f"Starte Verarbeitung von {len(lines)} Zeile(n)")
     i = 0
     data = {}
     STEUERBRUTTO = "Steuerbrutto"
@@ -102,10 +104,10 @@ def process(pdf_paths, year=YEAR, output_path=None):
             GESAMTBRUTTO: gesamtbrutto,
             SV_AG: sv_ag,
         }
-    print("Finished processing")
+    print(f"Verarbeitung abgeschlossen: {len(data)} Mitarbeiter ausgewertet")
     
     OUT_FILENAME = output_path or f"lohnjournal_{year}.xlsx"
-    print(f"\nCreating {OUT_FILENAME}")
+    print(f"\nErstelle {OUT_FILENAME}")
     if os.path.exists(OUT_FILENAME):
         os.remove(OUT_FILENAME)
 
@@ -120,7 +122,7 @@ def process(pdf_paths, year=YEAR, output_path=None):
         writer.sheets[TITLE].column_dimensions["A"].width = 30
         for column in ["B", "C", "D", "E", "F", "G", "H", "I"]:
             writer.sheets[TITLE].column_dimensions[column].width = 15
-    print("done")
+    print("fertig")
     return OUT_FILENAME
 
 
@@ -144,4 +146,5 @@ if __name__ == "__main__":
     if not pdfs:
         print(f"Keine PDF gefunden: lohnjournal/12.{args.year}.pdf")
         exit(1)
+    print(f"PDF gefunden: {pdfs[0]}")
     process(pdfs, year=args.year)

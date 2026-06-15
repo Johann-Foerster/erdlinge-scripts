@@ -26,7 +26,7 @@ def get_pages(filename):
     if not num_pages == int(
         raw_xml["metadata"]["xmpTPg:NPages"]
     ):  # check if it worked correctly
-        print("ERROR in page number crosscheck")
+        print("FEHLER beim Abgleich der Seitenanzahl")
         exit(1)
     return text_pages
 
@@ -65,7 +65,9 @@ def process(pdf_paths, year=YEAR, mon=None, output_path=None):
     if mon is None:
         mon = os.path.splitext(os.path.basename(pdf_paths[0]))[0]
 
+    print(f"Lese PDF: {pdf_paths[0]}")
     pages = get_pages(pdf_paths[0])
+    print(f"  {len(pages)} Seite(n) gefunden, extrahiere Zeilen...")
 
     lines = []
     for page in pages:
@@ -75,6 +77,7 @@ def process(pdf_paths, year=YEAR, mon=None, output_path=None):
         lines.extend(
             [line for line in pLines[index_start + 1 : index_end] if line.strip() != ""]
         )
+    print(f"  {len(lines)} Datenzeile(n) extrahiert")
 
     def process_entry(
         data,
@@ -89,7 +92,7 @@ def process(pdf_paths, year=YEAR, mon=None, output_path=None):
         gesamt = 0.0
         monat = 0.0
         if nextLineRR:
-            print(f"Processing also '{' '.join(nextLineSplit)}'")
+            print(f"Verarbeite zusätzlich '{' '.join(nextLineSplit)}'")
             gesamt = sign * parse_float(nextLineSplit[-1])
             monat = sign * (parse_float(nextLineSplit[-2]) + parse_float(lineSplit[-1]))
         else:
@@ -105,6 +108,7 @@ def process(pdf_paths, year=YEAR, mon=None, output_path=None):
     current_employee = ""
     current_employee_done = False
     RR_line_processed = False
+    print("Starte Auswertung der Zeilen...")
     for idx, line in enumerate(lines):
         lineSplit = line.split(" ")
         nextLineSplit = lines[idx + 1].split(" ") if idx < len(lines) - 1 else []
@@ -116,7 +120,7 @@ def process(pdf_paths, year=YEAR, mon=None, output_path=None):
         if RR_line_processed:
             RR_line_processed = False
             continue
-        print(f"Processing '{line}'")
+        print(f"Verarbeite '{line}'")
         if re.match(r"^\d", line):
             has_two_values = re.match(r"^-{0,1}\d+\.{0,1}\d*\,\d{2}", lineSplit[-2]) != None
             current_employee = " ".join(lineSplit[1 : (-2 if has_two_values else -1)])
@@ -131,15 +135,15 @@ def process(pdf_paths, year=YEAR, mon=None, output_path=None):
                 U2_GESAMT: 0.0,
                 U2_MONAT: 0.0,
             }
-            print(f"--- BEGIN {current_employee} ---")
+            print(f"--- BEGINN {current_employee} ---")
             RR_line_processed = process_entry(
                 data, nextLineRR, lineSplit, nextLineSplit, MONATSBRUTTO, GESAMTBRUTTO, True
             )
             continue
         if line.startswith("Zwischensummen"):
             current_employee_done = True
-            print(f">data: {data[current_employee]}")
-            print(f"--- END {current_employee} ---\n")
+            print(f">Daten: {data[current_employee]}")
+            print(f"--- ENDE {current_employee} ---\n")
         if current_employee_done:
             continue
         if (
@@ -175,10 +179,10 @@ def process(pdf_paths, year=YEAR, mon=None, output_path=None):
             continue
 
         raise OSError(f"Unable to process unknown line {line}")
-    print("Finished reading")
+    print("Lesen abgeschlossen")
 
     OUT_FILENAME = output_path or f"ag_belastung_{year}_{mon}.xlsx"
-    print(f"\nCreating {OUT_FILENAME}")
+    print(f"\nErstelle {OUT_FILENAME}")
     if os.path.exists(OUT_FILENAME):
         os.remove(OUT_FILENAME)
 
@@ -202,7 +206,7 @@ def process(pdf_paths, year=YEAR, mon=None, output_path=None):
         writer.sheets[TITLE].column_dimensions["A"].width = 30
         for column in ["B", "C", "D", "E", "F", "G", "H", "I"]:
             writer.sheets[TITLE].column_dimensions[column].width = 15
-    print("done")
+    print("fertig")
     return OUT_FILENAME
 
 

@@ -203,12 +203,15 @@ def process(input_paths, output_path=None):
             "Bitte genau eine GLS-Konto-CSV und eine GLS-Buchhaltungs-XLSX hochladen"
         )
 
+    print(f"Lese GLS-Konto-CSV: {konto[0]}")
     gls_buchungen = lese_gls_konto(konto[0])
+    print(f"Lese Buchhaltungs-XLSX: {buchhaltung[0]}")
     bh_buchungen = lese_gls_buchhaltung(buchhaltung[0])
 
     print(f"GLS Konto: {len(gls_buchungen)} Buchungen")
     print(f"Buchhaltung: {len(bh_buchungen)} Buchungen")
 
+    print("\nGleiche Buchungen ab...")
     nur_gls, nur_bh, uebereinstimmend = abgleich(gls_buchungen, bh_buchungen)
 
     print(f"\nErgebnis:")
@@ -217,8 +220,9 @@ def process(input_paths, output_path=None):
     print(f"  Nur Buchhaltung:  {len(nur_bh)}")
 
     out = output_path or "kontoabgleich_gls.xlsx"
+    print(f"\nSchreibe Ergebnis...")
     schreibe_ergebnis(out, nur_gls, nur_bh, uebereinstimmend)
-    print(f"\nDatei geschrieben: {out}")
+    print(f"Datei geschrieben: {out}")
     return out
 
 

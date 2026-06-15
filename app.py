@@ -1,7 +1,7 @@
 """Gradio-Oberfläche für die Erdlinge-Auswertungsskripte.
 
 Jedes CLI-Skript ist als eigener Tab verfügbar. Auf jedem Tab können die
-benötigten Dateien hochgeladen werden; per "Submit" wird die jeweilige
+benötigten Dateien hochgeladen werden; per "Ausführen" wird die jeweilige
 ``process``-Funktion ausgeführt und die erzeugte Excel-Datei sowie die
 Log-Ausgabe zurückgegeben. Die Kernlogik der Skripte bleibt unverändert.
 """
@@ -59,10 +59,10 @@ def _make_tab(label, description, fn, out_name, with_year=True, file_types=(".pd
                     file_types=list(file_types),
                 )
                 year = gr.Textbox(value=str(datetime.date.today().year), label="Jahr") if with_year else None
-                btn = gr.Button("Submit", variant="primary")
+                btn = gr.Button("Ausführen", variant="primary")
             with gr.Column():
                 out_file = gr.File(label="Ergebnis (Excel)")
-                logs = gr.Textbox(label="Logs", lines=15)
+                logs = gr.Textbox(label="Protokoll", lines=15)
 
         if with_year:
             btn.click(
@@ -80,13 +80,14 @@ def _make_tab(label, description, fn, out_name, with_year=True, file_types=(".pd
 
 def build_app():
     with gr.Blocks(title="Erdlinge Auswertungen") as demo:
-        gr.Markdown("# Erdlinge Auswertungen\nLade die Dokumente hoch und klicke auf **Submit**.")
+        gr.Markdown("# Erdlinge Auswertungen\nLade die Dokumente hoch und klicke auf **Ausführen**.")
 
         _make_tab(
             "AAG Erstattungen",
             "PDF(s) der AAG-Erstattungen hochladen. Ergebnis: Excel mit U1- und U2-Tabelle.",
             aag_erstattungen.process,
             "AAG_Erstattungen.xlsx",
+            with_year=False,
         )
         _make_tab(
             "Abrechnungen",

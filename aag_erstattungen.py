@@ -22,7 +22,7 @@ def get_pages(filename):
     if not num_pages == int(
         raw_xml["metadata"]["xmpTPg:NPages"]
     ):  # check if it worked correctly
-        print("ERROR in page number crosscheck")
+        print("FEHLER beim Abgleich der Seitenanzahl")
         exit(1)
     return text_pages
 
@@ -38,8 +38,11 @@ def process(pdf_paths, year=YEAR, output_path=None):
     erstattungen_u1 = {}
     erstattungen_u2 = {}
 
+    print(f"Starte Verarbeitung von {len(pdf_paths)} PDF-Datei(en)...")
     for pdf in pdf_paths:
+        print(f"Lese PDF: {pdf}")
         text_pages = get_pages(pdf)
+        print(f"  {len(text_pages)} Seite(n) gefunden, werte aus...")
         for page in text_pages:
             if "Rückrechnung" in page:
                 continue
@@ -71,7 +74,7 @@ def process(pdf_paths, year=YEAR, output_path=None):
                 )
             )
             if type == "TYPE ERROR":
-                print("ERROR finding type of page:")
+                print("FEHLER beim Bestimmen des Seitentyps (U1/U2):")
                 print(page)
 
             value = ""
@@ -109,6 +112,10 @@ def process(pdf_paths, year=YEAR, output_path=None):
                 )
 
     # summing up
+    print(
+        f"Bilde Summen: {len(erstattungen_u1)} Mitarbeiter (U1), "
+        f"{len(erstattungen_u2)} Mitarbeiter (U2)"
+    )
     for name in erstattungen_u1.keys():
         erstattungen_u1[name][ROW_SUM] = sum(erstattungen_u1[name].values())
     for name in erstattungen_u2.keys():
@@ -116,7 +123,7 @@ def process(pdf_paths, year=YEAR, output_path=None):
 
     titles = [x.split("/")[-1].replace(".pdf", "") for x in pdf_paths]
     outfile = output_path or f"AAG_Erstattungen_{year}.xlsx"
-    print(f"\nWriting {outfile}")
+    print(f"\nSchreibe Excel-Datei: {outfile}")
 
     wb = Workbook()
     ws = wb.active
@@ -146,7 +153,7 @@ def process(pdf_paths, year=YEAR, output_path=None):
                 cell.number_format = "#,##0.00"
 
     wb.save(outfile)
-    print("...written!")
+    print("...fertig geschrieben!")
     return outfile
 
 
@@ -171,4 +178,5 @@ if __name__ == "__main__":
     if not pdfs:
         print(f"Keine PDFs gefunden in: aag_erstattungen/{args.year}/")
         exit(1)
+    print(f"{len(pdfs)} PDF(s) gefunden in: aag_erstattungen/{args.year}/")
     process(pdfs, year=args.year)
