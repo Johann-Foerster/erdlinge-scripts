@@ -55,7 +55,7 @@ aufgerufen wird. Ergebnisse werden durchgängig als Excel-Dateien ausgegeben.
 Die Anwendung kann mit [PyInstaller](https://pyinstaller.org/) als eigenständige
 ausführbare Datei gebündelt werden. Das Bundle startet die Gradio-Oberfläche und
 öffnet automatisch den Browser – eine separate Python-Installation ist zur
-Nutzung nicht erforderlich.
+Nutzung nicht erforderlich. Für die PDF-Auswertungen wird weiterhin eine Java-Laufzeitumgebung benötigt (siehe oben).
 
 ```bash
 pip install -r requirements-build.txt
