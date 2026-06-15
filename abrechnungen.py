@@ -2,13 +2,13 @@ from enum import unique
 from tika import parser
 from dataclasses import dataclass, field
 from collections import OrderedDict
+import pandas as pd
 from pandas import DataFrame, ExcelWriter
+import datetime
 import numpy as np
 import glob, os, re
 
-YEAR = "2025"
-pdfs = glob.glob(f"abrechnungen/{YEAR}/*.pdf")
-data = []
+YEAR = str(datetime.date.today().year)
 
 AMZ = "Arbeitsmarktzulage"
 MZ = "Münchenzulage"
@@ -36,8 +36,7 @@ def get_pages(filename):
     if not num_pages == int(
         raw_xml["metadata"]["xmpTPg:NPages"]
     ):  # check if it worked correctly
-        print("ERROR in page number crosscheck")
-        exit(1)
+        raise RuntimeError("FEHLER beim Abgleich der Seitenanzahl")
     return text_pages
 
 
@@ -127,7 +126,7 @@ class Page:
                 or int(fehlzeit_start.split(".")[1]) < self.month
             ):
                 print(
-                    f"For {self.name} {MUTF} started {fehlzeit_start} so in month {self.month} there is no unversteuert {EUW}"
+                    f"Für {self.name} begann {MUTF} am {fehlzeit_start}, daher gibt es im Monat {self.month} keine unversteuerte {EUW}"
                 )
                 steuerfrei_entgeltumw = 0
 
@@ -148,78 +147,119 @@ class Page:
         )
 
 
-pages = []
-for pdf in pdfs:
-    print(f"Reading {pdf}...")
-    text_pages = get_pages(pdf)
-    for tpage in text_pages:
-        page_obj = Page(tpage)
-        if YEAR not in page_obj.month_year:
-            print(
-                f"Skipping page not for year {YEAR} (RR={page_obj.is_rueckrechnung}): {page_obj}"
-            )
-            continue
-        pages.append(page_obj)
+def process(pdf_paths, year=YEAR, output_path=None):
+    def _month_from_filename(path):
+        m = re.search(r"Verdienstabrechnung (\d{2})\.\d{4}", os.path.basename(path))
+        return int(m.group(1)) if m else float("inf")
 
-months = unique([page.month for page in pages])
-names = unique([page.name for page in pages])
+    pdf_paths = sorted(pdf_paths, key=_month_from_filename)
 
-tables = [
-    {"name": "Arbeitsmarktzulage", "field": "arbeitsmarktzulage"},
-    {"name": "Münchenzulage", "field": "muenchenzulage"},
-    {"name": "Fahrtkostenzuschuss", "field": "fahrtkostenzuschuss"},
-    {
-        "name": "Steuerfrei (inkl. FKZ)",
-        "field": "steuerfrei_inkl_fahrtkostenzuschuss",
-    },
-    {"name": "Wochenarbeitszeit", "field": "wochenarbeitszeit"},
-    {"name": "Gehaltsgruppe-Stufe", "field": "gruppe_stufe"},
-]
-print(
-    f"\nCreating tables {[table['name'] for table in tables]} for months {months} and employees {names}"
-)
-
-data = {}
-for name in names:
-    employee_pages = [page for page in pages if page.name in name]
-    for page in employee_pages:
-        if page.month not in data:
-            data[page.month] = {}
-        if name not in data[page.month]:
-            data[page.month][page.name] = {}
-        for table in tables:
-            datapoint = getattr(page, table["field"])
-            if table["name"] in data[page.month][page.name]:
-                old_datapoint = data[page.month][page.name][table["name"]]
-                if old_datapoint != datapoint:
-                    print(
-                        f"Changed {table['name']} for {page.name}, month {page.month}, old={old_datapoint}, new={datapoint}, RR={page.is_rueckrechnung} page={page}"
-                    )
-            data[page.month][page.name][table["name"]] = datapoint
-
-OUT_FILENAME = f"abrechnungen_{YEAR}.xlsx"
-print(f"\nCreating {OUT_FILENAME}")
-if os.path.exists(OUT_FILENAME):
-    os.remove(OUT_FILENAME)
-
-with ExcelWriter(OUT_FILENAME, engine="openpyxl", mode="w") as writer:
-    for table in tables:
-        df = DataFrame()
-        for month in months:
-            for employee in names:
-                df.loc[employee, month] = (
-                    data[month][employee][table["name"]]
-                    if employee in data[month]
-                    else 0
+    pages = []
+    print(f"Starte Verarbeitung von {len(pdf_paths)} PDF-Datei(en)...")
+    for pdf in pdf_paths:
+        print(f"Lese {pdf}...")
+        text_pages = get_pages(pdf)
+        print(f"  {len(text_pages)} Seite(n) gefunden, werte aus...")
+        for tpage in text_pages:
+            page_obj = Page(tpage)
+            if year not in page_obj.month_year:
+                print(
+                    f"Überspringe Seite, die nicht zum Jahr {year} gehört (RR={page_obj.is_rueckrechnung}): {page_obj}"
                 )
-        if np.issubdtype(df.dtypes.values[0], np.number):
-            df["Summe"] = df.sum(axis=1)
-        title_df = DataFrame([{"Daten": table["name"]}])
-        title_df.to_excel(
-            writer, sheet_name=table["name"], index=False, header=False, startrow=0
+                continue
+            pages.append(page_obj)
+
+    months = unique([page.month for page in pages])
+    names = unique([page.name for page in pages])
+
+    if not months or not names:
+        raise ValueError(
+            f"Keine Seiten für das Jahr {year} gefunden. Bitte Jahr und PDFs prüfen."
         )
-        df.to_excel(
-            writer, sheet_name=table["name"], index=True, header=True, startrow=2
-        )
-        writer.sheets[table["name"]].column_dimensions["A"].width = 30
-print("done")
+    tables = [
+        {"name": "Arbeitsmarktzulage", "field": "arbeitsmarktzulage"},
+        {"name": "Münchenzulage", "field": "muenchenzulage"},
+        {"name": "Fahrtkostenzuschuss", "field": "fahrtkostenzuschuss"},
+        {
+            "name": "Steuerfrei (inkl. FKZ)",
+            "field": "steuerfrei_inkl_fahrtkostenzuschuss",
+        },
+        {"name": "Wochenarbeitszeit", "field": "wochenarbeitszeit"},
+        {"name": "Gehaltsgruppe-Stufe", "field": "gruppe_stufe"},
+    ]
+    print(
+        f"\nErstelle Tabellen {[table['name'] for table in tables]} für Monate {months} und Mitarbeiter {names}"
+    )
+
+    data = {}
+    for name in names:
+        employee_pages = [page for page in pages if page.name == name]
+        for page in employee_pages:
+            if page.month not in data:
+                data[page.month] = {}
+            if page.name not in data[page.month]:
+                data[page.month][page.name] = {}
+            for table in tables:
+                datapoint = getattr(page, table["field"])
+                if table["name"] in data[page.month][page.name]:
+                    old_datapoint = data[page.month][page.name][table["name"]]
+                    if old_datapoint != datapoint:
+                        print(
+                            f"Geänderter Wert {table['name']} für {page.name}, Monat {page.month}, alt={old_datapoint}, neu={datapoint}, RR={page.is_rueckrechnung} page={page}"
+                        )
+                data[page.month][page.name][table["name"]] = datapoint
+
+    OUT_FILENAME = output_path or f"abrechnungen_{year}.xlsx"
+    print(f"\nErstelle {OUT_FILENAME}")
+    if os.path.exists(OUT_FILENAME):
+        os.remove(OUT_FILENAME)
+
+    with ExcelWriter(OUT_FILENAME, engine="openpyxl", mode="w") as writer:
+        for table in tables:
+            print(f"  Schreibe Tabellenblatt: {table['name']}")
+            df = DataFrame()
+            for month in months:
+                for employee in names:
+                    df.loc[employee, month] = (
+                        data[month][employee][table["name"]]
+                        if employee in data[month]
+                        else None
+                    )
+            if pd.api.types.is_numeric_dtype(df.iloc[:, 0]):
+                df["Summe"] = df.sum(axis=1)
+            title_df = DataFrame([{"Daten": table["name"]}])
+            title_df.to_excel(
+                writer, sheet_name=table["name"], index=False, header=False, startrow=0
+            )
+            df.to_excel(
+                writer, sheet_name=table["name"], index=True, header=True, startrow=2
+            )
+            writer.sheets[table["name"]].column_dimensions["A"].width = 30
+    print("fertig")
+    return OUT_FILENAME
+
+
+if __name__ == "__main__":
+    import argparse
+    ap = argparse.ArgumentParser(
+        description=(
+            "Verarbeitet Gehaltsabrechnungs-PDFs und schreibt mehrere Auswertungstabellen in eine Excel-Datei.\n\n"
+            "Erwartete Ordnerstruktur:\n"
+            "  abrechnungen/<YEAR>/*.pdf\n\n"
+            "Je PDF-Seite werden Arbeitsmarktzulage, Münchenzulage, Fahrtkostenzuschuss,\n"
+            "steuerfreie Bezüge, Wochenarbeitszeit und TVöD-Gehaltsgruppe extrahiert.\n"
+            "Seiten anderer Jahre (Rückrechnungen) werden übersprungen."
+        ),
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
+    ap.add_argument(
+        "--year", default=YEAR,
+        help=f"Abrechnungsjahr (Standard: {YEAR})",
+    )
+    args = ap.parse_args()
+    pdfs = glob.glob(f"abrechnungen/{args.year}/*.pdf")
+    if not pdfs:
+        print(f"Keine PDFs gefunden in: abrechnungen/{args.year}/")
+        exit(1)
+    print(f"{len(pdfs)} PDF(s) gefunden in: abrechnungen/{args.year}/")
+    process(pdfs, year=args.year)

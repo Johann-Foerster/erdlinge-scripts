@@ -1,0 +1,13 @@
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Eingabe-/Ausgabedaten
+*.xlsx
+*.csv
+aag_erstattungen/
+abrechnungen/
+ag_belastung/
+lohnjournal/
+kontoabgleich/

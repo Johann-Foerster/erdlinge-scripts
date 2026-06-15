@@ -194,13 +194,24 @@ def schreibe_ergebnis(pfad, nur_gls, nur_bh, uebereinstimmend):
     wb.save(pfad)
 
 
-def main():
-    gls_buchungen = lese_gls_konto("kontoabgleich/GLS_Konto.csv")
-    bh_buchungen = lese_gls_buchhaltung("kontoabgleich/GLS_Buchhaltung.xlsx")
+def process(input_paths, output_path=None):
+    """Verarbeitet hochgeladene Dateien (eine GLS_Konto CSV + eine Buchhaltung XLSX)."""
+    konto = [p for p in input_paths if p.lower().endswith(".csv")]
+    buchhaltung = [p for p in input_paths if p.lower().endswith((".xlsx", ".xls"))]
+    if len(konto) != 1 or len(buchhaltung) != 1:
+        raise OSError(
+            "Bitte genau eine GLS-Konto-CSV und eine GLS-Buchhaltungs-XLSX hochladen"
+        )
+
+    print(f"Lese GLS-Konto-CSV: {konto[0]}")
+    gls_buchungen = lese_gls_konto(konto[0])
+    print(f"Lese Buchhaltungs-XLSX: {buchhaltung[0]}")
+    bh_buchungen = lese_gls_buchhaltung(buchhaltung[0])
 
     print(f"GLS Konto: {len(gls_buchungen)} Buchungen")
     print(f"Buchhaltung: {len(bh_buchungen)} Buchungen")
 
+    print("\nGleiche Buchungen ab...")
     nur_gls, nur_bh, uebereinstimmend = abgleich(gls_buchungen, bh_buchungen)
 
     print(f"\nErgebnis:")
@@ -208,8 +219,39 @@ def main():
     print(f"  Nur GLS:          {len(nur_gls)}")
     print(f"  Nur Buchhaltung:  {len(nur_bh)}")
 
-    schreibe_ergebnis("kontoabgleich_gls.xlsx", nur_gls, nur_bh, uebereinstimmend)
-    print("\nDatei geschrieben: kontoabgleich_gls.xlsx")
+    out = output_path or "kontoabgleich_gls.xlsx"
+    print(f"\nSchreibe Ergebnis...")
+    schreibe_ergebnis(out, nur_gls, nur_bh, uebereinstimmend)
+    print(f"Datei geschrieben: {out}")
+    return out
+
+
+def main():
+    import argparse
+    ap = argparse.ArgumentParser(
+        description=(
+            "Gleicht GLS-Kontobewegungen mit der Buchhaltungs-XLSX ab und markiert\n"
+            "übereinstimmende sowie fehlende Buchungen farbig in einer Ausgabe-Excel-Datei.\n\n"
+            "Benötigte Dateien (Standardpfade):\n"
+            "  kontoabgleich/GLS_Konto.csv      – GLS-Kontoauszug als CSV-Export\n"
+            "                                     (UTF-8, Semikolon-getrennt,\n"
+            "                                      Spalten: Buchungstag, Valutadatum,\n"
+            "                                               Betrag, Verwendungszweck)\n"
+            "  kontoabgleich/GLS_Buchhaltung.xlsx – Buchhaltungs-Tabelle als XLSX\n\n"
+            "Alternativ können beide Dateipfade als Argumente übergeben werden."
+        ),
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
+    ap.add_argument(
+        "konto", nargs="?", default="kontoabgleich/GLS_Konto.csv",
+        help="Pfad zur GLS-Konto-CSV (Standard: kontoabgleich/GLS_Konto.csv)",
+    )
+    ap.add_argument(
+        "buchhaltung", nargs="?", default="kontoabgleich/GLS_Buchhaltung.xlsx",
+        help="Pfad zur Buchhaltungs-XLSX (Standard: kontoabgleich/GLS_Buchhaltung.xlsx)",
+    )
+    args = ap.parse_args()
+    process([args.konto, args.buchhaltung])
 
 
 if __name__ == "__main__":
