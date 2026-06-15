@@ -7,6 +7,7 @@ Log-Ausgabe zurückgegeben. Die Kernlogik der Skripte bleibt unverändert.
 """
 
 import contextlib
+import datetime
 import io
 import os
 import tempfile
@@ -57,7 +58,7 @@ def _make_tab(label, description, fn, out_name, with_year=True, file_types=(".pd
                     file_count="multiple",
                     file_types=list(file_types),
                 )
-                year = gr.Textbox(value="2025", label="Jahr") if with_year else None
+                year = gr.Textbox(value=str(datetime.date.today().year), label="Jahr") if with_year else None
                 btn = gr.Button("Submit", variant="primary")
             with gr.Column():
                 out_file = gr.File(label="Ergebnis (Excel)")
