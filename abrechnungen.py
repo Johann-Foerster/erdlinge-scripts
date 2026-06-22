@@ -19,7 +19,22 @@ MUTF = "Mutterschutzfrist"
 BV = "Beschäftigungsverbot"
 WAZ = "Arb.Zeit"
 TVOD = "TVöD SuE Arbeitnehmer Grundvergütung"
-
+PERSOENLICH_VERTRAULICH = "Persönlich/Vertraulich"
+KRANKENKASSEN = ["Knappschaft", 
+                 "Techniker Krankenkasse", 
+                 "Debeka BKK", 
+                 "AOK Bayern Die Gesundheitskasse", 
+                 "SBK HV West", 
+                 "AOK Bayern Die Gesundheitskasse", 
+                 "BKK firmus", 
+                 "hkk Handelskrankenkasse", 
+                 "DAK-Gesundheit", 
+                 "KKH Kaufmännische Krankenkasse", 
+                 "IKK classic",
+                 "DAK-Gesundheit",
+                 "Mobil Krankenkasse",
+                 "VIACTIV Krankenkasse",
+                 "BARMER (vormals BARMER GEK)"]
 
 def get_pages(filename):
     reader = PdfReader(filename)
@@ -57,7 +72,7 @@ class Page:
         self.month_year = self.line_with("Gehaltsabrechnung").split(" ")[-1]
         self.month = int(self.month_year.split(".")[0])
 
-        self.name = self.line_with(" Abteilung").split(" Abteilung")[0]
+        self.name = self.extract_name()
 
         self.is_rueckrechnung = "Rückrechnung" in page
 
@@ -119,6 +134,22 @@ class Page:
         self.steuerfrei_inkl_fahrtkostenzuschuss = (
             self.fahrtkostenzuschuss + sum(steuerfrei_values) + steuerfrei_entgeltumw
         )
+
+    def extract_name(self):
+        idx_persoenlich = self.line_index_with(PERSOENLICH_VERTRAULICH)
+        hat_anrede = self._lines[idx_persoenlich + 1].startswith("Frau") or self._lines[idx_persoenlich + 1].startswith("Herr")
+        if hat_anrede:
+            return self.line_with(" Abteilung").split(" Abteilung")[0]
+        
+        line_with_name = self._lines[idx_persoenlich + 1]
+        # Extrahiere Name vor Krankenkasse
+        for kk in KRANKENKASSEN:
+            if kk in line_with_name:
+                return line_with_name.split(kk)[0].strip()
+
+        # Unbekannte Krankenkasse
+        print(f"Warnung bei Namensextraktion, Fallback Name = erste 2 Wörter: Keine Anrede und Krankenkasse nicht erkannt: {line_with_name}")
+        return " ".join(line_with_name.split(" ")[:2])
 
     def line_with(self, text: str):
         return [line for line in self._lines if text in line][0]
